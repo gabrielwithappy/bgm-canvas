@@ -75,10 +75,12 @@
   display: block;
   width: 100%;
   height: auto;
+  touch-action: none;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.94), rgba(246, 239, 230, 0.9)),
     #fff;
   border-radius: 16px;
+  cursor: crosshair;
 }
 
 .status-panel {
@@ -120,6 +122,61 @@
 .status-card ul {
   padding-left: 1.2rem;
   color: var(--muted-ink);
+}
+
+.session-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.scene-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.scene-badges__empty {
+  margin: 0;
+  color: var(--muted-ink);
+}
+
+.scene-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(122, 76, 31, 0.12);
+  color: #7a4c1f;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.session-controls button {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(31, 28, 24, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #1f1c18;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.session-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 560px) {
+  .session-controls {
+    flex-wrap: wrap;
+  }
+
+  .session-controls button {
+    min-width: calc(50% - 0.4rem);
+  }
 }
 
 @media (max-width: 900px) {
