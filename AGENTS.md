@@ -48,4 +48,23 @@ next: <single next action>
 - 제품 요구사항: `docs/10-product/prd.md`
 - 구현 계획: `docs/20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
 
+## Local Skills
+이 프로젝트는 `agent-starter`의 superpowers 스킬 묶음을 Codex용 로컬 스킬로 복사해 `./.codex/skills/superpowers/`에 저장한다.
+작업이 아래 트리거와 맞으면 해당 `SKILL.md`를 먼저 읽고 지침을 따른다.
+
+- `using-superpowers`: 대화를 시작하거나 어떤 스킬을 먼저 써야 할지 판단할 때. 파일: `./.codex/skills/superpowers/using-superpowers/SKILL.md`
+- `brainstorming`: 구현 전에 접근 방식 비교나 설계 대안 정리가 필요할 때. 파일: `./.codex/skills/superpowers/brainstorming/SKILL.md`
+- `writing-plans`: 구현 계획이나 작업 분해 문서를 새로 쓸 때. 파일: `./.codex/skills/superpowers/writing-plans/SKILL.md`
+- `executing-plans`: 이미 확정된 계획을 순서대로 실행할 때. 파일: `./.codex/skills/superpowers/executing-plans/SKILL.md`
+- `test-driven-development`: 기능 추가, 버그 수정, 리팩터링 전에 테스트를 먼저 써야 할 때. 파일: `./.codex/skills/superpowers/test-driven-development/SKILL.md`
+- `systematic-debugging`: 재현이 어렵거나 원인이 불명확한 버그를 디버깅할 때. 파일: `./.codex/skills/superpowers/systematic-debugging/SKILL.md`
+- `verification-before-completion`: 완료, 수정, 통과를 주장하기 전에 검증 근거를 확인할 때. 파일: `./.codex/skills/superpowers/verification-before-completion/SKILL.md`
+- `dispatching-parallel-agents`: 독립적인 조사나 읽기 작업을 병렬로 분리할 때. 파일: `./.codex/skills/superpowers/dispatching-parallel-agents/SKILL.md`
+- `subagent-driven-development`: 큰 구현 계획을 작업 단위로 나눠 구현과 리뷰를 반복할 때. 파일: `./.codex/skills/superpowers/subagent-driven-development/SKILL.md`
+- `requesting-code-review`: 구현 후 리뷰 요청 프롬프트나 체크리스트가 필요할 때. 파일: `./.codex/skills/superpowers/requesting-code-review/SKILL.md`
+- `receiving-code-review`: 코드 리뷰 결과를 처리하고 후속 수정을 정리할 때. 파일: `./.codex/skills/superpowers/receiving-code-review/SKILL.md`
+- `finishing-a-development-branch`: 브랜치 마감, 정리, 최종 확인이 필요할 때. 파일: `./.codex/skills/superpowers/finishing-a-development-branch/SKILL.md`
+- `using-git-worktrees`: worktree 기반 병렬 작업이 필요할 때. 파일: `./.codex/skills/superpowers/using-git-worktrees/SKILL.md`
+- `writing-skills`: 이 프로젝트의 로컬 스킬을 새로 만들거나 수정할 때. 파일: `./.codex/skills/superpowers/writing-skills/SKILL.md`
+
 이 파일과 `docs/` 문서가 충돌하면 `docs/00-governance/` 문서를 우선한다.
