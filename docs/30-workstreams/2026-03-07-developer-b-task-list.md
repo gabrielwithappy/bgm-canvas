@@ -2,8 +2,11 @@
 
 ## 문서 정보
 - 작성일: 2026-03-07
-- 기준 문서: [구현 계획](/Users/erickwon/workspace/personal/bgm-canvas/docs/2026-03-07-bgm-canvas-implementation-plan.md)
+- 기준 문서: `../20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
 - 역할: scene 해석, 오디오 엔진, 테스트 인프라, 브라우저 자동화 중심 구현
+- 선행 문서: `../README.md`, `../00-governance/codex-collaboration-protocol.md`, `../20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
+- 관련 문서: `2026-03-07-developer-a-task-list.md`
+- 수정 트리거: 개발자 B 담당 범위, 오디오 엔진 방향, 테스트 기준, 개발자 A와의 계약 의존성이 바뀔 때
 
 ## 1. 작업 원칙
 - 테스트는 항상 최신 `develop` 반영 후 실행한다.

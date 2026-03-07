@@ -2,8 +2,11 @@
 
 ## 문서 정보
 - 작성일: 2026-03-07
-- 기준 문서: [구현 계획](/Users/erickwon/workspace/personal/bgm-canvas/docs/2026-03-07-bgm-canvas-implementation-plan.md)
+- 기준 문서: `../20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
 - 역할: 캔버스 입력, 시각 UI, 온보딩, 사용자 상호작용 중심 구현
+- 선행 문서: `../README.md`, `../00-governance/codex-collaboration-protocol.md`, `../20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
+- 관련 문서: `2026-03-07-developer-b-task-list.md`
+- 수정 트리거: 개발자 A 담당 범위, 완료 기준, 개발자 B와의 계약 의존성이 바뀔 때
 
 ## 1. 작업 원칙
 - 작업 시작 전 최신 `develop`을 반영한다.
