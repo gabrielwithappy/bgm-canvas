@@ -125,9 +125,18 @@
 2. 자신의 담당 범위 문서를 읽었는가
 3. 공용 계약에 영향이 있는가
 4. 영향이 있다면 먼저 문서 또는 Issue를 갱신했는가
-5. 테스트 기준과 완료 조건이 문서에 명시되어 있는가
+5. 현재 작업을 나타내는 GitHub Issue 또는 Project item이 존재하는가
+6. Project item의 `Workflow Status`가 현재 상태와 맞게 갱신되었는가
+7. 테스트 기준과 완료 조건이 문서에 명시되어 있는가
 
 하나라도 아니면, 바로 구현을 확장하지 않는다.
+
+### 작업 시작 하드 게이트
+- 코드 파일을 수정하기 전에 현재 작업 단위를 나타내는 GitHub Issue 또는 Project card를 먼저 만든다.
+- GitHub Project card가 없으면 구현을 시작하지 않는다.
+- 기본 시작 상태는 `Workflow Status = In Progress`다.
+- 작업 종료 전에는 `Workflow Status`를 `Review` 또는 `Done`으로 갱신한다.
+- 이미 존재하는 작업을 이어받는 경우에도, 시작 시점에 card 상태와 다음 액션을 최신화한다.
 
 ## 8. 작업 중 전달 규칙
 다른 개발자의 Codex에게 전달할 내용은 아래 형식을 우선 사용한다.
@@ -197,10 +206,21 @@ next: adapter mock interface finalize
 - PR 생성 시
 - 작업 종료 시
 
+### 시작 시 필수 기록 포맷
+작업 시작 직후 Project 또는 연결된 Issue에 아래 4줄을 남긴다.
+
+```md
+branch: <current-branch>
+owner: <person/codex>
+issue: <issue-url-or-number>
+next: <single next action>
+```
+
 ### 금지 사항
 - Projects 카드 설명에 장문의 기술 합의를 누적하지 않는다.
 - 상태 갱신 없이 PR만 올리고 끝내지 않는다.
 - blocker를 로컬 대화로만 공유하고 기록하지 않는다.
+- Project card 또는 Issue 없이 바로 코드부터 수정하지 않는다.
 
 ## 10. Codex discussion 운영 절차
 Codex 사이 discussion은 채팅처럼 실시간으로 이어가는 것이 아니라, GitHub Issue 기반의 비동기 토론으로 운영한다.
@@ -218,6 +238,20 @@ Codex 사이 discussion은 채팅처럼 실시간으로 이어가는 것이 아�
 3. Projects 카드에 해당 Issue 링크를 연결하고 상태를 `blocked` 또는 `doing`으로 갱신한다.
 4. 상대 Codex는 Issue 코멘트로 입장, 영향 범위, 선호안, 조건을 남긴다.
 5. 사람 개발자가 최종 방향을 정하거나, 이미 명확한 경우 문서/PR로 확정한다.
+
+## 11. Current Handoff Snapshot
+- 기준 시점: 2026-03-07
+- GitHub 확인 결과: `origin/develop` fetch 완료, 열린 Issue/PR은 확인되지 않음
+- 현재 공용 계약 상태: `Stroke`, `Motif`, `SceneElement`, `AudioLayer`는 구현 계획 문서의 shape를 기준으로 유지한다.
+- 현재 작은 작업 단위:
+  - 작업 A: `단계 0 부트스트랩` 범위에서 React/Vite 앱 셸, 빈 캔버스, smoke test, Playwright smoke를 먼저 고정한다.
+  - 작업 B: 이후 단계 1에서 pointer drawing, undo/reset reducer, scene/audio 도메인을 분리 구현한다.
+- 현재 Codex handoff:
+  - Gabriel Codex: 테스트 인프라, 앱 부트스트랩, 공용 타입 파일 위치 확정, 자동 검증
+  - 다른 개발자 Codex: 이후 단계에서 canvas interaction, session UI, 수동 브라우저 QA
+- 병렬 처리 경계:
+  - 지금은 공용 타입 파일 위치와 테스트 구조가 확정되기 전이므로 `단계 0` 안에서는 shared contract 변경을 병렬 처리하지 않는다.
+  - `단계 0` 완료 후에는 `canvas/UI`와 `scene/audio/test`를 분리해서 병렬 처리한다.
 6. 결론이 재사용될 가치가 있으면 `src/bgm-canvas/docs/` 문서에 반영한다.
 
 ### discussion 응답 규칙
@@ -369,6 +403,7 @@ Codex는 작업 완료 시 아래를 남긴다.
 - 어떤 테스트로 검증했는가
 - 상대 Codex가 이어서 작업할 수 있는 상태인가
 - 남은 리스크 또는 미확정 항목은 무엇인가
+- 관련 Issue와 Project card가 최신 상태인가
 
 ## 19. 이 프로젝트에 대한 즉시 적용 규칙
 현재 BGM Canvas에서는 아래 항목을 최우선 공용 계약으로 본다.

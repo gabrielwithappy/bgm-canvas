@@ -178,6 +178,23 @@ type AudioLayer = {
 ## 6. 단계별 구현 계획
 각 단계는 `완료 조건`, `검증 방법`, `병렬 작업`이 명확해야 한다.
 
+### 6-0. Current Execution Slice
+- 기준 시점: 2026-03-07
+- 현재 착수 범위: `단계 0. 프로젝트 부트스트랩`
+- 이번 실행의 목표:
+  - React + TypeScript + Vite 앱 셸 생성
+  - 빈 캔버스 렌더와 최소 상태 패널 추가
+  - Vitest + RTL + Playwright smoke test 통과
+  - 공용 타입 파일 위치를 `src/shared/types/domain.ts`로 고정
+- 이번 실행에서 의도적으로 미루는 항목:
+  - pointer drawing 구현
+  - scene classifier
+  - audio engine
+  - undo/reset reducer의 실제 상태 변경 로직
+- handoff 메모:
+  - 다음 Codex는 `src/shared/types/domain.ts`를 shared contract 시작점으로 사용한다.
+  - UI 확장은 `src/app/App.tsx`, canvas 기능 확장은 `src/features/canvas/CanvasSurface.tsx`에서 이어간다.
+
 ### 단계 0. 프로젝트 부트스트랩
 목표:
 - React + TypeScript + Vite 프로젝트 생성

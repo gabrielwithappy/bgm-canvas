@@ -5,9 +5,10 @@
 - 프로젝트 개요, 문서 진입점, 협업 시작 경로를 가장 먼저 안내한다.
 
 ## 시작 순서
-1. 프로젝트 목표를 빠르게 파악하려면 `docs/10-product/prd.md`를 읽는다.
-2. Codex 또는 개발 협업 기준을 확인하려면 `docs/README.md`부터 읽는다.
-3. 구현 방향과 기술 선택을 확인하려면 `docs/20-planning/2026-03-07-bgm-canvas-implementation-plan.md`를 읽는다.
+1. Codex는 먼저 `AGENTS.md`를 읽고 작업 시작 게이트를 확인한다.
+2. 프로젝트 목표를 빠르게 파악하려면 `docs/10-product/prd.md`를 읽는다.
+3. Codex 또는 개발 협업 기준을 확인하려면 `docs/README.md`부터 읽는다.
+4. 구현 방향과 기술 선택을 확인하려면 `docs/20-planning/2026-03-07-bgm-canvas-implementation-plan.md`를 읽는다.
 
 ## 문서 진입점
 - 문서 인덱스: `docs/README.md`
@@ -18,6 +19,7 @@
 - 구현 계획: `docs/20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
 
 ## 협업 원칙
+- Codex 시작 컨텍스트와 필수 게이트는 `AGENTS.md`에 둔다.
 - 장기 기준선은 `docs/` 문서에 남긴다.
 - 실제 작업 단위와 진행상황은 GitHub Issues와 Project에서 관리한다.
 - 새로운 Codex는 `docs/README.md`의 읽기 순서부터 따른다.

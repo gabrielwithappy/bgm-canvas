@@ -1,0 +1,137 @@
+.app-shell {
+  width: min(1200px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+}
+
+.hero {
+  margin-bottom: 1.5rem;
+}
+
+.hero h1 {
+  max-width: 12ch;
+  margin: 0.2rem 0 0.75rem;
+  font-size: clamp(2.8rem, 8vw, 5.2rem);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+}
+
+.hero__body {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--muted-ink);
+  font-size: 1.05rem;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(280px, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.canvas-panel,
+.status-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.92)),
+    var(--paper);
+  border: 1px solid rgba(31, 28, 24, 0.12);
+  border-radius: 24px;
+  box-shadow: 0 24px 50px rgba(36, 25, 16, 0.08);
+}
+
+.canvas-panel {
+  padding: 1rem;
+}
+
+.canvas-panel__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.canvas-panel__header h2,
+.status-card h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.4rem;
+}
+
+.canvas-panel__hint {
+  max-width: 30ch;
+  margin: 0;
+  color: var(--muted-ink);
+}
+
+.canvas-frame {
+  padding: 1rem;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 248, 239, 0.95), rgba(247, 238, 228, 0.85));
+  border: 1px dashed rgba(31, 28, 24, 0.16);
+}
+
+.canvas-surface {
+  display: block;
+  width: 100%;
+  height: auto;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.94), rgba(246, 239, 230, 0.9)),
+    #fff;
+  border-radius: 16px;
+}
+
+.status-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.status-card {
+  padding: 1rem 1.1rem;
+}
+
+.status-card dl,
+.status-card ul {
+  margin: 1rem 0 0;
+}
+
+.status-card dl {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.status-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(31, 28, 24, 0.08);
+}
+
+.status-card dt {
+  color: var(--muted-ink);
+}
+
+.status-card dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.status-card ul {
+  padding-left: 1.2rem;
+  color: var(--muted-ink);
+}
+
+@media (max-width: 900px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .canvas-panel__header {
+    flex-direction: column;
+  }
+
+  .canvas-surface {
+    min-height: 320px;
+  }
+}
