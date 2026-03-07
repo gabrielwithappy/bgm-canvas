@@ -1,7 +1,7 @@
 # 문서 맵
 
 ## 목적
-- `src/docs/`의 문서 역할, 읽기 순서, 우선순위를 고정해서 Codex가 문맥을 빠르게 복원할 수 있게 한다.
+- `src/bgm-canvas/docs/`의 문서 역할, 읽기 순서, 우선순위를 고정해서 Codex가 문맥을 빠르게 복원할 수 있게 한다.
 
 ## 읽기 순서
 1. [codex-collaboration-protocol.md](./codex-collaboration-protocol.md)
