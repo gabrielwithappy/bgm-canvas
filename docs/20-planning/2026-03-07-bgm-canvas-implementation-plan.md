@@ -5,7 +5,7 @@
 - 기준 문서: `../10-product/prd.md`
 - 목표: 검은색 단일 선 드로잉으로 장면을 만들고, 해당 장면에 맞는 BGM/환경음이 누적되는 MVP를 TDD 기반으로 구현한다.
 - 선행 문서: `../README.md`, `../00-governance/codex-collaboration-protocol.md`, `../10-product/prd.md`
-- 관련 문서: `../30-workstreams/2026-03-07-developer-a-role-charter.md`, `../30-workstreams/2026-03-07-developer-b-role-charter.md`
+- 관련 문서: `../00-governance/github-issue-seeds.md`
 - 수정 트리거: 기술 스택, 아키텍처, 단계 계획, 공용 계약의 기본 방향이 바뀔 때
 
 ## 1. 구현 원칙
@@ -44,6 +44,13 @@
 
 ## 4. 제안 아키텍처
 이 MVP는 `로컬 실행 전용`을 전제로 한다. 별도 API 서버, DB, 인증, 배포 인프라는 두지 않는다.
+
+## 4-1. Owner Mapping
+- 개발자 A owner: `canvas`, `UI rendering`, `session controls`, 수동 브라우저 QA
+- 개발자 B owner: `scene classifier`, `audio engine`, `test infrastructure`, 브라우저 자동화
+- shared contract: 공용 타입, motif schema, audio state, UI에 노출할 최소 상태 값
+- owner는 작업 백로그를 뜻하지 않고, 최종 수정 책임과 문의 라우팅 기준을 뜻한다.
+- 실제 작업 단위와 진행상황은 GitHub Issues와 Project에서 관리한다.
 
 ### 프런트엔드 계층
 - `app`: 라우트, 레이아웃, 최상위 상태 조립

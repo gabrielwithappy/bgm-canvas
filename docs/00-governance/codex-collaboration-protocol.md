@@ -5,7 +5,7 @@
 - 대상: 이 저장소에서 병렬 작업하는 사람 개발자가 각각 사용하는 Codex
 - 목적: 2명 이상이 GitHub 기반으로 병렬 개발할 때, Codex 간 충돌과 계약 불일치를 줄이기 위한 운영 규칙을 정의한다.
 - 선행 문서: `src/docs/README.md`
-- 관련 문서: `document-map.md`, `../10-product/prd.md`, `../20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
+- 관련 문서: `document-map.md`, `github-issue-seeds.md`, `../10-product/prd.md`, `../20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
 - 수정 트리거: 협업 방식, GitHub Project 운영 규칙, 문서 우선순위, handoff 절차가 바뀔 때
 
 ## GitHub Project 정보
@@ -42,11 +42,17 @@
 - 다른 개발자의 Codex가 소비할 수 있는 형태로 결과를 남긴다.
 - 승인되지 않은 공용 계약 변경을 단독으로 확정하지 않는다.
 
+## 2-1. 권장 협업 모델
+- Codex 협업은 `실시간 대화`보다 `GitHub Issue 중심 비동기 협업`을 기본으로 한다.
+- 작업 실행은 GitHub Project와 Issues에서 관리하고, 문서는 장기 계약과 운영 규칙만 유지한다.
+- 역할 문서 대신 구현 계획 안의 `owner mapping`을 최소 책임 계약으로 사용한다.
+- 작업 분해의 초기 seed는 `github-issue-seeds.md`에 유지하고, 실제 진행은 GitHub에서 갱신한다.
+
 ## 3. Codex가 따라야 할 우선순위
 우선순위가 충돌하면 아래 순서를 따른다.
 
 1. 저장소의 최신 코드와 테스트
-2. `src/docs/` 안의 구현 계획 및 작업 문서
+2. `src/docs/` 안의 협업 규약, 제품 문서, 구현 계획
 3. 명시적으로 합의된 이슈/PR 설명
 4. 각 개발자의 로컬 메모 또는 대화
 5. Codex의 일반적 추론
@@ -305,13 +311,13 @@ Projects, Issues, PR, 문서는 서로 분리해서 쓰되 반드시 링크로 �
 - Project 카드에는 관련 Issue 또는 PR 링크가 있어야 한다.
 - Issue에는 관련 문서 또는 코드 위치가 있어야 한다.
 - PR에는 관련 Issue와 문서 링크가 있어야 한다.
-- 문서에서 중요한 계약을 정의하면 관련 작업 문서나 PR에서 해당 문서를 참조한다.
+- 문서에서 중요한 계약을 정의하면 관련 구현 계획 문서나 PR에서 해당 문서를 참조한다.
 
 ### 최소 연결 세트
 1. 진행상황 추적: Project -> Issue 또는 PR
 2. 논의: Issue -> 문서 또는 코드
 3. 구현 반영: PR -> Issue + 문서
-4. 장기 보존: 문서 -> 관련 작업 문서
+4. 장기 보존: 문서 -> 관련 구현 계획 문서
 
 이 연결이 없으면 나중에 Codex가 문맥을 복원하기 어려워진다.
 
