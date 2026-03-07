@@ -5,7 +5,7 @@
 - 기준 문서: `../10-product/prd.md`
 - 목표: 검은색 단일 선 드로잉으로 장면을 만들고, 해당 장면에 맞는 BGM/환경음이 누적되는 MVP를 TDD 기반으로 구현한다.
 - 선행 문서: `../README.md`, `../00-governance/codex-collaboration-protocol.md`, `../10-product/prd.md`
-- 관련 문서: `../30-workstreams/2026-03-07-developer-a-task-list.md`, `../30-workstreams/2026-03-07-developer-b-task-list.md`
+- 관련 문서: `../30-workstreams/2026-03-07-developer-a-role-charter.md`, `../30-workstreams/2026-03-07-developer-b-role-charter.md`
 - 수정 트리거: 기술 스택, 아키텍처, 단계 계획, 공용 계약의 기본 방향이 바뀔 때
 
 ## 1. 구현 원칙

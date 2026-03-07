@@ -8,8 +8,8 @@
 2. `00-governance/document-map.md`
 3. `10-product/prd.md`
 4. `20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
-5. `30-workstreams/2026-03-07-developer-a-task-list.md`
-6. `30-workstreams/2026-03-07-developer-b-task-list.md`
+5. `30-workstreams/2026-03-07-developer-a-role-charter.md`
+6. `30-workstreams/2026-03-07-developer-b-role-charter.md`
 
 ## Folder Roles
 - `00-governance/`: 협업 규약, 문서 맵, 읽기 순서, 문서 우선순위

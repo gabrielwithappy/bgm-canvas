@@ -7,15 +7,15 @@
 1. [codex-collaboration-protocol.md](./codex-collaboration-protocol.md)
 2. [../10-product/prd.md](../10-product/prd.md)
 3. [../20-planning/2026-03-07-bgm-canvas-implementation-plan.md](../20-planning/2026-03-07-bgm-canvas-implementation-plan.md)
-4. [../30-workstreams/2026-03-07-developer-a-task-list.md](../30-workstreams/2026-03-07-developer-a-task-list.md)
-5. [../30-workstreams/2026-03-07-developer-b-task-list.md](../30-workstreams/2026-03-07-developer-b-task-list.md)
+4. [../30-workstreams/2026-03-07-developer-a-role-charter.md](../30-workstreams/2026-03-07-developer-a-role-charter.md)
+5. [../30-workstreams/2026-03-07-developer-b-role-charter.md](../30-workstreams/2026-03-07-developer-b-role-charter.md)
 
 ## 문서 역할
 - `codex-collaboration-protocol.md`: Codex 운영 규약, GitHub Project/Issue/PR 사용 규칙
 - `prd.md`: 제품 목표, 사용자, MVP 범위
 - `2026-03-07-bgm-canvas-implementation-plan.md`: 기술 스택, 구조, 단계별 구현 계획
-- `2026-03-07-developer-a-task-list.md`: 개발자 A 작업 범위와 완료 기준
-- `2026-03-07-developer-b-task-list.md`: 개발자 B 작업 범위와 완료 기준
+- `2026-03-07-developer-a-role-charter.md`: 개발자 A 역할, 책임 범위, 완료 기준
+- `2026-03-07-developer-b-role-charter.md`: 개발자 B 역할, 책임 범위, 완료 기준
 
 ## 우선순위
 문서 간 충돌 시 아래 순서를 따른다.
