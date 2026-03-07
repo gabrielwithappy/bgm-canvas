@@ -4,7 +4,7 @@
 - 작성일: 2026-03-07
 - 대상: 이 저장소에서 병렬 작업하는 사람 개발자가 각각 사용하는 Codex
 - 목적: 2명 이상이 GitHub 기반으로 병렬 개발할 때, Codex 간 충돌과 계약 불일치를 줄이기 위한 운영 규칙을 정의한다.
-- 선행 문서: `src/docs/README.md`
+- 선행 문서: `src/bgm-canvas/docs/README.md`
 - 관련 문서: `document-map.md`, `github-issue-seeds.md`, `../10-product/prd.md`, `../20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
 - 수정 트리거: 협업 방식, GitHub Project 운영 규칙, 문서 우선순위, handoff 절차가 바뀔 때
 
@@ -19,9 +19,9 @@
 - 참고: GitHub 기본 `Status` 필드(`Todo`, `In Progress`, `Done`)도 남아 있지만, 이 프로젝트 협업에서는 `Workflow Status`를 우선 사용한다.
 
 ## 용어 정의
-- 이 문서에서 `docs`는 GitHub 기능이 아니라, **프로젝트 저장소 내부의 문서 폴더**를 뜻한다.
-- 현재 이 프로젝트에서 해당 폴더는 `src/docs/` 이다.
-- 따라서 `docs에 남긴다`, `docs로 승격한다`는 표현은 모두 저장소 안의 `src/docs/` 문서 파일을 갱신한다는 의미다.
+- 이 문서에서 `docs`는 GitHub 기능이 아니라, **현재 bgm-canvas 저장소 내부의 문서 폴더**를 뜻한다.
+- 현재 이 프로젝트에서 해당 폴더는 `src/bgm-canvas/docs/` 이다.
+- 따라서 `docs에 남긴다`, `docs로 승격한다`는 표현은 모두 저장소 안의 `src/bgm-canvas/docs/` 문서 파일을 갱신한다는 의미다.
 
 ## 1. 기본 원칙
 - 이 문서는 사람 개발자 간 감성적 합의문이 아니라, 각 Codex가 작업 중 따라야 하는 실행 규약이다.
@@ -47,12 +47,15 @@
 - 작업 실행은 GitHub Project와 Issues에서 관리하고, 문서는 장기 계약과 운영 규칙만 유지한다.
 - 역할 문서 대신 구현 계획 안의 `owner mapping`을 최소 책임 계약으로 사용한다.
 - 작업 분해의 초기 seed는 `github-issue-seeds.md`에 유지하고, 실제 진행은 GitHub에서 갱신한다.
+- 반복 구현은 설치된 `superpowers` skill을 기본 워크플로우로 사용한다.
+- 기본 실행 루프는 `using-superpowers -> GitHub Issue 선택/작성 -> test-driven-development -> subagent-driven-development 또는 dispatching-parallel-agents -> verification-before-completion -> PR/Issue/docs 반영` 순서로 운영한다.
+- 2개 이상의 독립 작업 단위가 확인되면 `dispatching-parallel-agents`를 사용해 병렬 처리한다.
 
 ## 3. Codex가 따라야 할 우선순위
 우선순위가 충돌하면 아래 순서를 따른다.
 
 1. 저장소의 최신 코드와 테스트
-2. `src/docs/` 안의 협업 규약, 제품 문서, 구현 계획
+2. `src/bgm-canvas/docs/` 안의 협업 규약, 제품 문서, 구현 계획
 3. 명시적으로 합의된 이슈/PR 설명
 4. 각 개발자의 로컬 메모 또는 대화
 5. Codex의 일반적 추론
@@ -74,11 +77,16 @@
 - 기록 대상: 무엇을 바꿨는지, 계약 영향이 있는지, 어떤 테스트를 돌렸는지
 - 원칙: PR 본문에는 관련 문서/이슈 링크를 반드시 포함한다.
 
-### `src/docs/`
+### `src/bgm-canvas/docs/`
 - 용도: 오래 유지할 계약 문서
 - 기록 대상: 구현 계획, 역할 분담, 공용 타입, 협업 규약, 변경 이력
 - 의미: GitHub Docs나 외부 위키가 아니라, 현재 프로젝트 저장소 내부 문서 폴더를 말한다.
 - 원칙: 2회 이상 반복 설명이 필요한 내용은 Issue 댓글이 아니라 문서로 승격한다.
+
+### Superpowers Skills
+- 용도: 반복 구현, 병렬 처리, TDD, 완료 전 검증의 실행 워크플로우
+- 기본 skill: `using-superpowers`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`
+- 원칙: 기능 구현 전에 relevant skill을 확인하고, 완료 주장 전에는 반드시 검증 skill 규칙을 따른다.
 
 ## 5. 공용 계약 항목
 아래 항목은 “공용 계약”으로 간주한다.
@@ -210,7 +218,7 @@ Codex 사이 discussion은 채팅처럼 실시간으로 이어가는 것이 아�
 3. Projects 카드에 해당 Issue 링크를 연결하고 상태를 `blocked` 또는 `doing`으로 갱신한다.
 4. 상대 Codex는 Issue 코멘트로 입장, 영향 범위, 선호안, 조건을 남긴다.
 5. 사람 개발자가 최종 방향을 정하거나, 이미 명확한 경우 문서/PR로 확정한다.
-6. 결론이 재사용될 가치가 있으면 `src/docs/` 문서에 반영한다.
+6. 결론이 재사용될 가치가 있으면 `src/bgm-canvas/docs/` 문서에 반영한다.
 
 ### discussion 응답 규칙
 - “찬성/반대”만 쓰지 말고 이유와 영향 범위를 같이 쓴다.
@@ -231,6 +239,12 @@ Codex 사이 discussion은 채팅처럼 실시간으로 이어가는 것이 아�
 ## 11. Codex handoff 규칙
 discussion과 별도로, 한 Codex가 다른 Codex에게 “이제 네가 이어서 해야 하는 정보”를 넘길 때는 handoff 형식을 사용한다.
 
+### 새 Codex 온보딩
+- 새 Codex는 먼저 `docs/README.md`의 읽기 순서를 따른다.
+- 이후 관련 GitHub Issue와 최근 handoff Issue를 확인한다.
+- 구현 전 `using-superpowers`로 relevant skill을 확인한다.
+- 병렬 처리 가능한 독립 작업이 있으면 `dispatching-parallel-agents` 사용 가능 여부를 먼저 판단한다.
+
 ### handoff가 필요한 상황
 - 자기 작업이 끝났고 상대가 바로 이어서 작업할 수 있을 때
 - 공용 계약은 확정됐지만 상대 반영이 아직 남았을 때
@@ -239,7 +253,7 @@ discussion과 별도로, 한 Codex가 다른 Codex에게 “이제 네가 이어
 
 ### handoff 채널
 - 기본은 관련 Issue 코멘트 또는 PR 본문
-- 장기적으로 참조해야 하면 `src/docs/` 문서 링크를 같이 남긴다.
+- 장기적으로 참조해야 하면 `src/bgm-canvas/docs/` 문서 링크를 같이 남긴다.
 
 ### handoff 템플릿
 ```md
@@ -249,6 +263,7 @@ discussion과 별도로, 한 Codex가 다른 Codex에게 “이제 네가 이어
 - 관련 브랜치:
 - 관련 이슈/PR:
 - 관련 문서:
+- 사용한 superpower skill:
 
 ## 전달 내용
 - 완료한 것:
@@ -258,6 +273,7 @@ discussion과 별도로, 한 Codex가 다른 Codex에게 “이제 네가 이어
 
 ## 검증 정보
 - 실행한 테스트:
+- 검증 증거:
 - 확인 못 한 리스크:
 ```
 
@@ -277,6 +293,7 @@ Codex가 합의가 필요한 내용을 올릴 때는 아래 템플릿을 따른�
 - 코드:
 - 테스트:
 - 문서:
+- 사용한 superpower skill:
 
 ## 결정 필요 사항
 ```
@@ -292,7 +309,9 @@ Codex가 합의가 필요한 내용을 올릴 때는 아래 템플릿을 따른�
 - 변경 목적
 - 관련 이슈/문서
 - 공용 계약 영향 여부
+- 사용한 superpower skill
 - 테스트 실행 결과
+- 검증 증거
 - 상대 개발자가 확인할 포인트
 
 권장 체크리스트:
@@ -318,11 +337,12 @@ Projects, Issues, PR, 문서는 서로 분리해서 쓰되 반드시 링크로 �
 2. 논의: Issue -> 문서 또는 코드
 3. 구현 반영: PR -> Issue + 문서
 4. 장기 보존: 문서 -> 관련 구현 계획 문서
+5. 반복 구현 기록: Issue -> 사용한 superpower skill + 검증 로그
 
 이 연결이 없으면 나중에 Codex가 문맥을 복원하기 어려워진다.
 
 ## 15. 문서 갱신 규칙
-- 반복적으로 참조되는 결정은 `src/docs/`에 승격한다.
+- 반복적으로 참조되는 결정은 `src/bgm-canvas/docs/`에 승격한다.
 - 일회성 진행 상황은 Project나 PR 코멘트에 남긴다.
 - 작업 문서와 구현 계획이 충돌하면, 즉시 충돌 사실을 별도 항목으로 기록한다.
 - 날짜가 포함된 문서명은 유지하되, 후속 합의가 누적되면 별도 “living document”를 추가할 수 있다.
@@ -359,5 +379,7 @@ Codex는 작업 완료 시 아래를 남긴다.
 - audio layer diff 규칙
 - Tone adapter 인터페이스
 - UI에 노출할 최소 오디오 상태 값
+- 병렬 처리 가능한 작업 단위의 경계
+- superpowers 사용 기준과 검증 로그 형식
 
 위 항목 중 하나라도 변경되면, 관련 작업 문서와 함께 이 문서를 참조하는 링크를 남긴다.

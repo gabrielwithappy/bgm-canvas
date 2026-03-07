@@ -15,6 +15,9 @@
 - `프런트엔드 우선`: MVP는 서버 없는 클라이언트 중심 구조로 시작한다.
 - `브라우저 검증 필수`: 각 단계 종료 시 Playwright로 핵심 유즈 케이스를 실제 브라우저에서 검증한다.
 - `동기화 후 테스트`: 모든 테스트 실행 전 최신 `develop` 브랜치를 pull 받아 로컬 기준선을 먼저 맞춘다.
+- `superpowers 우선`: 구현 시작 전 `using-superpowers`를 확인하고, 구현은 `test-driven-development`와 `subagent-driven-development`를 기본으로 사용한다.
+- `병렬 처리 허용`: 2개 이상의 독립 작업 단위가 있을 때는 `dispatching-parallel-agents`를 사용해 병렬 처리하되, shared contract 변경은 병렬 작업에서 분리한다.
+- `완료 주장 금지`: 완료나 성공을 주장하기 전 `verification-before-completion` 기준으로 fresh verification evidence를 남긴다.
 
 ## 2. 권장 기술 스택
 ### 애플리케이션
@@ -46,11 +49,54 @@
 이 MVP는 `로컬 실행 전용`을 전제로 한다. 별도 API 서버, DB, 인증, 배포 인프라는 두지 않는다.
 
 ## 4-1. Owner Mapping
-- 개발자 A owner: `canvas`, `UI rendering`, `session controls`, 수동 브라우저 QA
-- 개발자 B owner: `scene classifier`, `audio engine`, `test infrastructure`, 브라우저 자동화
+- Erick owner: `canvas`, `UI rendering`, `session controls`, 수동 브라우저 QA
+- Gabriel owner: `scene classifier`, `audio engine`, `test infrastructure`, 브라우저 자동화
 - shared contract: 공용 타입, motif schema, audio state, UI에 노출할 최소 상태 값
 - owner는 작업 백로그를 뜻하지 않고, 최종 수정 책임과 문의 라우팅 기준을 뜻한다.
 - 실제 작업 단위와 진행상황은 GitHub Issues와 Project에서 관리한다.
+
+## 4-2. 개발 리소스 계획
+- 현재 기본 리소스는 사람 개발자 2명 + 각 개발자가 사용하는 Codex 조합을 기준으로 한다.
+- 반복 구현 리소스는 `superpowers` skill 기반 subagent 및 parallel agent dispatch를 포함한다.
+- 추가 개발자 또는 추가 Codex가 투입되면 먼저 owner mapping과 shared contract 경계를 확인한 뒤 작업을 분해한다.
+
+### 현재 기준 리소스
+- Erick + Erick의 Codex: canvas, UI rendering, session controls, 수동 브라우저 QA
+- Gabriel + Gabriel의 Codex: scene classifier, audio engine, test infrastructure, 브라우저 자동화
+- Shared: 타입, 이벤트 계약, audio state, fixture shape, motif schema
+
+### 확장 가능한 리소스 축
+- UI/interaction 축: 캔버스 입력, 시각 표시, 세션 컨트롤
+- scene/audio 축: classifier, layer diff, adapter, asset mapping
+- test/verification 축: Vitest, RTL, Playwright, trace 분석
+- integration/polish 축: 브라우저 검증, flaky 정리, 접근성 확인
+
+### 병렬 처리 가능 영역
+- 서로 다른 서브시스템을 수정하는 작업
+- 서로 다른 테스트 도메인을 수정하는 작업
+- smoke/integration/e2e처럼 원인이 분리된 실패 분석
+- UI 작업과 scene/audio 작업처럼 shared contract가 이미 고정된 영역
+
+### 병렬 처리 금지 또는 직렬 우선 영역
+- shared contract 변경
+- 공용 타입 파일 위치 변경
+- 이벤트 이름과 payload shape 변경
+- 최소 audio state 노출 계약 변경
+- motif 목록, `unknown` 정책, state transition 규칙 변경
+
+### 새 개발자/새 Codex 온보딩 순서
+1. `docs/README.md` 읽기
+2. `codex-collaboration-protocol.md` 확인
+3. owner mapping과 shared contract 확인
+4. `github-issue-seeds.md`에서 적절한 작업 단위 선택
+5. 관련 GitHub Issue와 handoff 기록 확인
+6. 구현 전 relevant superpower skill 확인
+
+### 리소스 증가 시 운영 원칙
+- 새 인원은 shared contract owner가 아닌, 독립 서브시스템 owner부터 맡긴다.
+- 새 Codex는 기존 이슈를 병렬 분해할 수 있을 때만 투입한다.
+- 병렬 처리 전 “독립 작업인가, shared state가 없는가”를 먼저 판별한다.
+- 사람 개발자 수가 늘어나도 공용 계약 변경은 소수 owner가 승인한다.
 
 ### 프런트엔드 계층
 - `app`: 라우트, 레이아웃, 최상위 상태 조립
@@ -100,6 +146,12 @@ type AudioLayer = {
 4. 컴포넌트 테스트 작성
 5. 브라우저 E2E 테스트 추가
 
+### 필수 실행 규칙
+- 각 단계는 최소 1개 이상의 failing test를 먼저 만든 뒤 구현을 시작한다.
+- 독립된 작업이 2개 이상이면 `dispatching-parallel-agents`로 병렬 처리할 수 있다.
+- 병렬 처리 대상은 서로 다른 파일/서브시스템/테스트 도메인이어야 하며, shared contract 변경은 직렬로 처리한다.
+- 각 단계 완료 전에는 검증 명령을 다시 실행하고 결과를 Issue 또는 PR에 남긴다.
+
 ### TDD 적용 대상
 - stroke 정규화
 - motif 분류 규칙
@@ -133,12 +185,28 @@ type AudioLayer = {
 - 공용 타입과 스크립트 정의
 - 로컬 전용 실행 환경 확정
 
+선행 계약:
+- 공용 타입 파일 위치
+- 테스트 디렉터리 구조
+
+TDD:
+- failing smoke test를 먼저 작성한다.
+- 설정 파일은 smoke test가 실패하는 이유를 해소하는 최소 변경만 한다.
+
 작업:
 - Vite React TS 템플릿 초기화
 - Vitest, RTL, Playwright 설정
 - `src/features`, `src/shared`, `tests/e2e` 구조 생성
 - 공용 타입 파일과 fixture 작성
 - 로컬 오디오 asset 폴더 구조 생성
+
+병렬 처리:
+- Erick: 앱 셸, 레이아웃, 빈 캔버스 렌더
+- Gabriel: Vitest/RTL/Playwright 설정
+
+검증 명령:
+- `npm run test`
+- `npm run test:e2e`
 
 완료 조건:
 - 앱이 빈 캔버스를 띄운다.
@@ -160,11 +228,27 @@ type AudioLayer = {
 - stroke 저장
 - undo/reset UI
 
+선행 계약:
+- `Stroke` shape
+- canvas input 이벤트 이름
+
+TDD:
+- pointer 입력 후 stroke 수 증가 failing test
+- undo/reset reducer failing test
+
 작업:
 - pointer 이벤트 기반 stroke 수집
 - canvas 렌더링
 - undo/reset reducer 구현
 - 검은색 단일 브러시 고정
+
+병렬 처리:
+- Erick: pointer 이벤트와 canvas 렌더링
+- Gabriel: reducer와 fixture
+
+검증 명령:
+- `npm run test`
+- 필요 시 `npm run test -- canvas`
 
 완료 조건:
 - 사용자가 마우스/터치로 선을 그릴 수 있다.
@@ -186,11 +270,27 @@ type AudioLayer = {
 - 자유 스케치를 완전 인식하려 하지 않고, 대표 motif 규칙 엔진을 만든다.
 - 초기 지원 motif: `campfire`, `rain`, `tree`, `star`, `wind`
 
+선행 계약:
+- 지원 motif 목록
+- `unknown` 정책
+
+TDD:
+- fixture 기반 분류 failing test
+- `unknown` fallback failing test
+
 작업:
 - stroke 묶음 규칙 설계
 - bounding box, point density, line orientation 같은 휴리스틱 작성
 - `unknown` fallback 추가
 - motif confidence 계산
+
+병렬 처리:
+- Erick: 디버그 overlay, motif 시각화
+- Gabriel: classifier 규칙 엔진, fixture
+
+검증 명령:
+- `npm run test`
+- classifier 대상 테스트 명령
 
 완료 조건:
 - 테스트 fixture 기준 대표 motif 분류가 재현 가능하다.
@@ -211,11 +311,27 @@ type AudioLayer = {
 - motif별 사운드 레이어 재생
 - 새 요소 추가 시 기존 사운드를 유지한 채 레이어 누적
 
+선행 계약:
+- `AudioLayer` shape
+- UI에 넘길 최소 오디오 상태 값
+
+TDD:
+- layer diff failing test
+- audio state transition failing test
+
 작업:
 - Tone.js adapter 작성
 - motif -> audio asset mapping
 - layer diff 알고리즘 구현
 - 사용자 첫 입력 이후 `Tone.start()` 처리
+
+병렬 처리:
+- Erick: 오디오 상태 UI 연결
+- Gabriel: adapter, asset loader, layer diff
+
+검증 명령:
+- `npm run test`
+- adapter/mock 대상 테스트 명령
 
 완료 조건:
 - 첫 motif가 재생된다.
@@ -237,10 +353,26 @@ type AudioLayer = {
 - 잘못 그린 요소를 undo 또는 erase로 수정
 - 삭제된 요소의 사운드 레이어도 함께 제거
 
+선행 계약:
+- undo/delete 정책
+- 삭제 시 fade-out 규칙
+
+TDD:
+- delete 이후 layer 감소 failing test
+- undo 후 scene/audio sync failing test
+
 작업:
 - 요소 단위 선택 삭제 또는 최근 stroke undo
 - scene 재계산
 - audio layer 제거 시 fade out 처리
+
+병렬 처리:
+- Erick: erase/undo UI
+- Gabriel: sync reducer, fade-out 정책
+
+검증 명령:
+- `npm run test`
+- 관련 integration test 명령
 
 완료 조건:
 - 사용자가 실수한 요소를 수정할 수 있다.
@@ -262,11 +394,27 @@ type AudioLayer = {
 - replay/pause/reset
 - 간단한 온보딩
 
+선행 계약:
+- replay/pause/reset UI 이벤트 이름
+- 접근성 최소 기준
+
+TDD:
+- controls 상호작용 failing test
+- audio state UI 노출 failing test
+
 작업:
 - 현재 활성 motif 목록 UI
 - 재생/일시정지
 - 첫 진입 안내 문구
 - 접근성 점검
+
+병렬 처리:
+- Erick: 온보딩, 컨트롤 UI
+- Gabriel: transport 제어, 접근성 테스트 셋업
+
+검증 명령:
+- `npm run test`
+- `npm run test:e2e`
 
 완료 조건:
 - 학생과 성인이 설명 없이 시작 가능하다.
@@ -286,10 +434,25 @@ type AudioLayer = {
 목표:
 - PRD 핵심 유즈 케이스를 실제 브라우저에서 재현
 
+선행 계약:
+- 핵심 유즈케이스 5종
+- trace 저장 정책
+
+TDD:
+- 각 유즈케이스를 최소 1개 이상의 Playwright failing scenario로 먼저 작성한다.
+
 작업:
 - headed Playwright 시나리오 작성
 - trace/screenshot 저장
 - 수동 QA 체크리스트 실행
+
+병렬 처리:
+- Erick: 수동 QA와 UI polish
+- Gabriel: Playwright 유지보수, trace 분석
+
+검증 명령:
+- `npm run test:e2e -- --headed`
+- `npm run test:e2e -- --trace on`
 
 완료 조건:
 - 핵심 유즈 케이스 5종이 자동화되거나 수동 체크리스트로 통과한다.

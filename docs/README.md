@@ -6,8 +6,8 @@
 
 ## Codex Reading Order
 1. `00-governance/codex-collaboration-protocol.md`
-2. `00-governance/document-map.md`
-3. `00-governance/github-issue-seeds.md`
+2. `00-governance/github-issue-seeds.md`
+3. `00-governance/document-map.md`
 4. `10-product/prd.md`
 5. `20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
 
@@ -18,11 +18,11 @@
 - `90-archive/`: 더 이상 기준 문서로 쓰지 않는 보관 문서
 
 ## Source Of Truth
-- 협업 방식과 채널 규칙: `00-governance/codex-collaboration-protocol.md`
-- 문서 구조와 읽기 우선순위: `00-governance/document-map.md`
+- 협업 방식, GitHub/skill 운영, 병렬 처리 규칙: `00-governance/codex-collaboration-protocol.md`
 - GitHub Issue 초안과 작업 분해 기준: `00-governance/github-issue-seeds.md`
-- 제품 요구사항: `10-product/prd.md`
-- 기술 방향과 아키텍처: `20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
+- 문서 구조와 읽기 우선순위: `00-governance/document-map.md`
+- 제품 요구사항과 product-level acceptance: `10-product/prd.md`
+- 기술 방향, owner mapping, implementation-level tests: `20-planning/2026-03-07-bgm-canvas-implementation-plan.md`
 
 ## 문서 수정 규칙
 - 협업 방식이 바뀌면 `00-governance/`를 먼저 수정한다.

@@ -10,10 +10,10 @@
 4. [../20-planning/2026-03-07-bgm-canvas-implementation-plan.md](../20-planning/2026-03-07-bgm-canvas-implementation-plan.md)
 
 ## 문서 역할
-- `codex-collaboration-protocol.md`: Codex 운영 규약, GitHub Project/Issue/PR 사용 규칙
-- `github-issue-seeds.md`: GitHub Issue 초기 분해 기준과 작업 seed
-- `prd.md`: 제품 목표, 사용자, MVP 범위
-- `2026-03-07-bgm-canvas-implementation-plan.md`: 기술 스택, 구조, 단계별 구현 계획, owner mapping
+- `codex-collaboration-protocol.md`: Codex 운영 규약, GitHub Project/Issue/PR 사용 규칙, superpowers와 병렬 처리 규칙
+- `github-issue-seeds.md`: 실행 가능한 GitHub Issue 템플릿, TDD/검증/병렬 분해 기준
+- `prd.md`: 제품 목표, 사용자, MVP 범위, product-level acceptance
+- `2026-03-07-bgm-canvas-implementation-plan.md`: 기술 스택, 구조, 단계별 구현 계획, owner mapping, implementation-level tests
 
 ## 우선순위
 문서 간 충돌 시 아래 순서를 따른다.
