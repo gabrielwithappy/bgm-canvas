@@ -64,11 +64,29 @@
 }
 
 .canvas-frame {
+  position: relative;
   padding: 1rem;
   border-radius: 18px;
   background:
     linear-gradient(135deg, rgba(255, 248, 239, 0.95), rgba(247, 238, 228, 0.85));
   border: 1px dashed rgba(31, 28, 24, 0.16);
+}
+
+.canvas-guide-overlay {
+  position: absolute;
+  inset: 1rem;
+  width: calc(100% - 2rem);
+  height: calc(100% - 2rem);
+  pointer-events: none;
+}
+
+.canvas-guide-overlay path {
+  fill: none;
+  stroke: rgba(194, 111, 38, 0.42);
+  stroke-width: 14;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 16 20;
 }
 
 .canvas-surface {
@@ -122,6 +140,30 @@
 .status-card ul {
   padding-left: 1.2rem;
   color: var(--muted-ink);
+}
+
+.guide-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.guide-chip {
+  border: 1px solid rgba(31, 28, 24, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #1f1c18;
+  padding: 0.65rem 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.guide-chip--selected {
+  background: #1f1c18;
+  color: #fff7ef;
+  border-color: #1f1c18;
+  box-shadow: 0 12px 24px rgba(31, 28, 24, 0.16);
 }
 
 .session-controls {

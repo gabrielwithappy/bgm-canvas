@@ -1,19 +1,28 @@
-import { useReducer } from "react";
+import { useMemo, useReducer, useState } from "react";
 import { useAudioSession } from "../features/audio/hooks/useAudioSession";
 import { deriveAudioLayers } from "../features/audio/model/audioLayers";
 import { CanvasSurface } from "../features/canvas/CanvasSurface";
+import { guideTemplates } from "../features/guides/model/guideTemplates";
 import { strokeSessionReducer } from "../features/canvas/model/strokeSession";
 import { classifyStrokes } from "../features/scene/model/classifyScene";
-import type { SceneElement, Stroke } from "../shared/types/domain";
+import type { GuideTemplate, SceneElement, Stroke } from "../shared/types/domain";
 import "./App.css";
 
 export function App() {
   const [strokes, dispatch] = useReducer(strokeSessionReducer, [] as Stroke[]);
+  const [selectedGuideId, setSelectedGuideId] = useState<string>(
+    guideTemplates[0]?.id ?? "",
+  );
   const sceneElements = classifyStrokes(strokes);
   const { pause, replay, reset: resetAudio, sessionState } =
     useAudioSession(sceneElements);
   const audioLayers = deriveAudioLayers(sceneElements, sessionState);
   const visibleMotifs = sceneElements.slice(-3);
+  const selectedGuide = useMemo(
+    () =>
+      guideTemplates.find((guide) => guide.id === selectedGuideId) ?? null,
+    [selectedGuideId],
+  );
 
   const resetSession = async () => {
     dispatch({ type: "reset" });
@@ -37,14 +46,45 @@ export function App() {
           onStrokeComplete={(stroke) => {
             dispatch({ type: "add", stroke });
           }}
+          selectedGuide={selectedGuide}
           strokes={strokes}
         />
 
         <aside className="status-panel" aria-label="Session status">
           <div className="status-card">
+            <p className="eyebrow">Guided input</p>
+            <h2>Choose a motif guide</h2>
+            <div className="guide-palette" role="group" aria-label="Motif guides">
+              {guideTemplates.map((guide: GuideTemplate) => {
+                const isSelected = guide.id === selectedGuide?.id;
+
+                return (
+                  <button
+                    aria-pressed={isSelected}
+                    className={isSelected ? "guide-chip guide-chip--selected" : "guide-chip"}
+                    key={guide.id}
+                    onClick={() => {
+                      setSelectedGuideId(guide.id);
+                    }}
+                    type="button"
+                  >
+                    {guide.label} guide
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="status-card">
             <p className="eyebrow">Drawing status</p>
             <h2>Canvas snapshot</h2>
             <dl>
+              <div>
+                <dt>Selected guide</dt>
+                <dd data-testid="selected-guide">
+                  {selectedGuide ? selectedGuide.label : "None"}
+                </dd>
+              </div>
               <div>
                 <dt>Strokes</dt>
                 <dd data-testid="stroke-count">{strokes.length}</dd>

@@ -14,6 +14,20 @@ test("loads the bootstrap canvas shell", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Canvas snapshot" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Choose a motif guide" }),
+  ).toBeVisible();
+});
+
+test("switches the selected guide and shows the matching overlay", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Rain guide" }).click();
+
+  await expect(page.getByTestId("selected-guide")).toHaveText("Rain");
+  await expect(page.getByLabel("Rain guide overlay")).toBeVisible();
 });
 
 test("stores one stroke after drawing on the canvas", async ({ page }) => {
