@@ -3,15 +3,17 @@
 ## 문서 정보
 - 작성일: 2026-03-07
 - 기준 문서: `../10-product/prd.md`
-- 목표: 검은색 단일 선 드로잉으로 장면을 만들고, 해당 장면에 맞는 BGM/환경음이 누적되는 MVP를 TDD 기반으로 구현한다.
+- 목표: 사용자가 미리 제공된 모티프 가이드를 선택하거나 따라 그리면, 해당 모티프에 맞는 BGM/환경음이 누적되는 MVP를 TDD 기반으로 구현한다.
 - 선행 문서: `../README.md`, `../00-governance/codex-collaboration-protocol.md`, `../10-product/prd.md`
 - 관련 문서: `../00-governance/github-issue-seeds.md`
 - 수정 트리거: 기술 스택, 아키텍처, 단계 계획, 공용 계약의 기본 방향이 바뀔 때
 
 ## 1. 구현 원칙
 - `작게 출시`: 각 단계는 독립적으로 실행 가능하고, 브라우저에서 바로 검증 가능해야 한다.
-- `TDD 우선`: 도메인 로직은 Vitest로 실패하는 테스트를 먼저 작성한 뒤 구현한다.
-- `계약 우선`: 두 개발자가 병렬 작업할 수 있도록 공용 타입과 이벤트 계약을 먼저 고정한다.
+- `TDD 우선`: 도메인 로직과 입력 판정 규칙은 Vitest로 failing test를 먼저 작성한 뒤 구현한다.
+- `계약 우선`: guided motif, 입력 상태, audio layer 상태 같은 공용 계약을 먼저 고정한다.
+- `입력 단순화 우선`: 초기 MVP는 자유 드로잉 해석 성능보다, 사용자가 쉽게 성공할 수 있는 입력 구조를 우선한다.
+- `결정적 매핑 우선`: 초기 MVP는 uncertain classifier보다, guide 기반 motif -> scene -> audio 매핑을 우선한다.
 - `프런트엔드 우선`: MVP는 서버 없는 클라이언트 중심 구조로 시작한다.
 - `브라우저 검증 필수`: 각 단계 종료 시 Playwright로 핵심 유즈 케이스를 실제 브라우저에서 검증한다.
 - `동기화 후 테스트`: 모든 테스트 실행 전 최신 `develop` 브랜치를 pull 받아 로컬 기준선을 먼저 맞춘다.
@@ -24,8 +26,8 @@
 - `React + TypeScript`
 - `Vite`
 - `HTML Canvas 2D API`
-- `Tone.js`
-- `CSS Modules` 또는 `plain CSS`
+- `Web Audio API` 또는 `Tone.js`
+- `plain CSS`
 
 ### 테스트
 - `Vitest`
@@ -38,20 +40,20 @@
 - `로컬 파일 기반 오디오 asset 관리`
 
 ## 3. 기술 선택 이유
-- `React + TypeScript`: UI 상태와 오디오 상태를 명확한 타입 계약으로 분리하기 쉽다.
-- `Vite`: 서버 렌더링, 배포 파이프라인, 백엔드 없이도 가장 빠르게 로컬 개발 서버를 띄울 수 있다. 이 프로젝트는 실제 배포보다 로컬 실행과 반복 검증이 목적이므로 Vite를 선택한다. 이 판단은 공식 문서를 바탕으로 한 추론이다.
-- `HTML Canvas 2D API`: PRD가 `검은색 단일 선`과 `최소 입력`에 집중하므로 무거운 드로잉 라이브러리 없이도 요구사항을 충족할 수 있다.
-- `Tone.js`: 사용자 입력 이후 오디오를 시작해야 하는 브라우저 제약을 다루기 쉽고, `Player`, `Loop`, `Transport`로 BGM/환경음 레이어를 제어할 수 있다.
-- `Vitest`: Vite 기반 앱과 설정을 공유하며 빠르게 도메인 테스트를 돌릴 수 있다.
-- `Playwright`: TypeScript를 바로 지원하고, 병렬 실행, trace, headed 실행으로 유즈 케이스 검증에 적합하다.
+- `React + TypeScript`: guided input 상태, motif 상태, audio 상태를 명확한 타입 계약으로 분리하기 쉽다.
+- `Vite`: 빠른 로컬 실행과 반복 검증에 적합하다.
+- `HTML Canvas 2D API`: 따라 그리기 가이드, overlay, 제한된 입력 판정 정도는 무거운 드로잉 라이브러리 없이도 구현 가능하다.
+- `Web Audio API` 또는 `Tone.js`: 초기 MVP에서는 motif별 deterministic 반응을 빠르게 구현하는 것이 우선이며, 이후 asset 기반 재생이 필요해지면 Tone.js adapter로 확장할 수 있다.
+- `Vitest`: guided input 판정, scene mapping, layer diff 같은 순수 로직 테스트에 적합하다.
+- `Playwright`: 실제 사용자가 가이드를 보고 입력하는 흐름을 검증하기 좋다.
 
 ## 4. 제안 아키텍처
 이 MVP는 `로컬 실행 전용`을 전제로 한다. 별도 API 서버, DB, 인증, 배포 인프라는 두지 않는다.
 
 ## 4-1. Owner Mapping
-- Erick owner: `canvas`, `UI rendering`, `session controls`, 수동 브라우저 QA
-- Gabriel owner: `scene classifier`, `audio engine`, `test infrastructure`, 브라우저 자동화
-- shared contract: 공용 타입, motif schema, audio state, UI에 노출할 최소 상태 값
+- Erick owner: `canvas`, `guide UI`, `session controls`, 수동 브라우저 QA
+- Gabriel owner: `scene mapping`, `audio engine`, `test infrastructure`, 브라우저 자동화
+- shared contract: 공용 타입, motif schema, guided input state, audio state, UI에 노출할 최소 상태 값
 - owner는 작업 백로그를 뜻하지 않고, 최종 수정 책임과 문의 라우팅 기준을 뜻한다.
 - 실제 작업 단위와 진행상황은 GitHub Issues와 Project에서 관리한다.
 
@@ -61,13 +63,13 @@
 - 추가 개발자 또는 추가 Codex가 투입되면 먼저 owner mapping과 shared contract 경계를 확인한 뒤 작업을 분해한다.
 
 ### 현재 기준 리소스
-- Erick + Erick의 Codex: canvas, UI rendering, session controls, 수동 브라우저 QA
-- Gabriel + Gabriel의 Codex: scene classifier, audio engine, test infrastructure, 브라우저 자동화
+- Erick + Erick의 Codex: canvas, guide UI, session controls, 수동 브라우저 QA
+- Gabriel + Gabriel의 Codex: scene mapping, audio engine, test infrastructure, 브라우저 자동화
 - Shared: 타입, 이벤트 계약, audio state, fixture shape, motif schema
 
 ### 확장 가능한 리소스 축
-- UI/interaction 축: 캔버스 입력, 시각 표시, 세션 컨트롤
-- scene/audio 축: classifier, layer diff, adapter, asset mapping
+- UI/interaction 축: guide palette, overlay, session controls
+- scene/audio 축: guide match, deterministic mapping, layer diff, adapter
 - test/verification 축: Vitest, RTL, Playwright, trace 분석
 - integration/polish 축: 브라우저 검증, flaky 정리, 접근성 확인
 
@@ -79,10 +81,10 @@
 
 ### 병렬 처리 금지 또는 직렬 우선 영역
 - shared contract 변경
-- 공용 타입 파일 위치 변경
-- 이벤트 이름과 payload shape 변경
+- guided motif 목록 변경
+- guide success/failure 판정 규칙 변경
 - 최소 audio state 노출 계약 변경
-- motif 목록, `unknown` 정책, state transition 규칙 변경
+- scene/audio event 이름과 payload shape 변경
 
 ### 새 개발자/새 Codex 온보딩 순서
 1. `docs/README.md` 읽기
@@ -95,31 +97,49 @@
 ### 리소스 증가 시 운영 원칙
 - 새 인원은 shared contract owner가 아닌, 독립 서브시스템 owner부터 맡긴다.
 - 새 Codex는 기존 이슈를 병렬 분해할 수 있을 때만 투입한다.
-- 병렬 처리 전 “독립 작업인가, shared state가 없는가”를 먼저 판별한다.
+- 병렬 처리 전 `독립 작업인가, shared state가 없는가`를 먼저 판별한다.
 - 사람 개발자 수가 늘어나도 공용 계약 변경은 소수 owner가 승인한다.
 
 ### 프런트엔드 계층
 - `app`: 라우트, 레이아웃, 최상위 상태 조립
-- `features/canvas`: 드로잉, undo, erase, stroke 관리
-- `features/scene`: stroke를 motif로 해석하는 규칙 엔진
-- `features/audio`: motif를 사운드 레이어로 변환하고 재생하는 엔진
-- `features/session`: reset, replay, UI 상태 표시
+- `features/guides`: 모티프 가이드 목록, 선택 상태, overlay 렌더링
+- `features/canvas`: 입력 수집, trace 진행 상태, undo/reset
+- `features/scene`: guided input을 scene element로 변환하는 규칙
+- `features/audio`: scene element를 사운드 레이어로 변환하고 재생하는 엔진
+- `features/session`: replay, pause, reset, 현재 세션 상태 표시
 - `shared`: 타입, 유틸, 테스트 헬퍼
 
 ### 핵심 도메인 계약
 ```ts
-type Stroke = {
+type Motif =
+  | "campfire"
+  | "rain"
+  | "wind"
+  | "tree"
+  | "star"
+  | "sea"
+  | "window"
+  | "lamp"
+  | "desk"
+  | "unknown"
+
+type GuideTemplate = {
   id: string
-  points: Array<{ x: number; y: number }>
-  createdAt: number
+  motif: Motif
+  label: string
+  previewPath: Array<{ x: number; y: number }>
 }
 
-type Motif = "campfire" | "rain" | "wind" | "tree" | "star" | "sea" | "unknown"
+type GuidedInputState = {
+  selectedGuideId: string | null
+  status: "idle" | "tracing" | "matched" | "failed"
+  progress: number
+}
 
 type SceneElement = {
   id: string
-  strokeIds: string[]
   motif: Motif
+  source: "guide-match" | "guide-select"
   confidence: number
 }
 
@@ -131,10 +151,11 @@ type AudioLayer = {
 ```
 
 ### 모듈 경계
-- `canvas`는 stroke를 만든다.
-- `scene`은 stroke를 motif로 해석한다.
-- `audio`는 motif 집합을 받아 layer diff를 계산하고 재생한다.
-- `session`은 undo/reset 시 `scene`과 `audio`를 동기화한다.
+- `guides`는 사용 가능한 입력 모티프와 overlay를 제공한다.
+- `canvas`는 사용자의 실제 선 입력과 trace 진행 상태를 관리한다.
+- `scene`은 guided input 결과를 scene element로 확정한다.
+- `audio`는 scene element 집합을 받아 layer diff를 계산하고 재생한다.
+- `session`은 undo/reset/pause/replay 시 `scene`과 `audio`를 동기화한다.
 
 이 계약을 먼저 고정하면 개발자 2명이 충돌 없이 병렬 작업할 수 있다.
 
@@ -153,16 +174,18 @@ type AudioLayer = {
 - 각 단계 완료 전에는 검증 명령을 다시 실행하고 결과를 Issue 또는 PR에 남긴다.
 
 ### TDD 적용 대상
-- stroke 정규화
-- motif 분류 규칙
+- guide 선택 reducer
+- trace progress 계산
+- guide match 판정 규칙
+- motif -> scene element 변환
 - layer diff 계산
 - undo/reset reducer
 - 오디오 상태 전이
 
 ### 테스트 피라미드
 - `단위 테스트`: 도메인 함수와 reducer
-- `통합 테스트`: React 컴포넌트와 Tone.js adapter 경계
-- `E2E 테스트`: 실제 드로잉, 사운드 시작, 수정, 초기화
+- `통합 테스트`: React 컴포넌트와 audio adapter 경계
+- `E2E 테스트`: guide 선택, 입력 성공, 사운드 시작, 수정, 초기화
 
 ### 협업 테스트 규칙
 1. 테스트 전 `git fetch origin` 수행
@@ -179,21 +202,19 @@ type AudioLayer = {
 각 단계는 `완료 조건`, `검증 방법`, `병렬 작업`이 명확해야 한다.
 
 ### 6-0. Current Execution Slice
-- 기준 시점: 2026-03-07
-- 현재 착수 범위: `단계 0. 프로젝트 부트스트랩`
+- 기준 시점: 2026-03-08
+- 현재 착수 범위: `입력 모델 전환 준비`
 - 이번 실행의 목표:
-  - React + TypeScript + Vite 앱 셸 생성
-  - 빈 캔버스 렌더와 최소 상태 패널 추가
-  - Vitest + RTL + Playwright smoke test 통과
-  - 공용 타입 파일 위치를 `src/shared/types/domain.ts`로 고정
+  - MVP 입력 전략을 자유 드로잉 해석 중심에서 guided input 중심으로 공식화
+  - PRD, 구현 계획, issue seed를 새 입력 모델에 맞게 정렬
+  - 현재 프로토타입의 자유 stroke classifier는 유지하되, 다음 구현 slice의 기본 방향을 guide 기반으로 전환
 - 이번 실행에서 의도적으로 미루는 항목:
-  - pointer drawing 구현
-  - scene classifier
-  - audio engine
-  - undo/reset reducer의 실제 상태 변경 로직
+  - 다중 stroke 객체 인식의 본격 확장
+  - 완전 자유 드로잉 품질 개선
+  - 고급 audio polish
 - handoff 메모:
-  - 다음 Codex는 `src/shared/types/domain.ts`를 shared contract 시작점으로 사용한다.
-  - UI 확장은 `src/app/App.tsx`, canvas 기능 확장은 `src/features/canvas/CanvasSurface.tsx`에서 이어간다.
+  - 다음 Codex는 guided motif, input success criteria, deterministic audio mapping을 shared contract 시작점으로 사용한다.
+  - 기존 `src/features/scene/model/classifyScene.ts`는 임시 프로토타입으로 보고, 장기 기준선으로 간주하지 않는다.
 
 ### 단계 0. 프로젝트 부트스트랩
 목표:
@@ -230,389 +251,282 @@ TDD:
 - `npm run test`, `npm run test:e2e`가 빈 상태로 통과한다.
 - `npm run dev`만으로 로컬 브라우저에서 바로 실행된다.
 
-검증:
-- 최신 `develop` 동기화 후 `npm run test`
-- `npm run dev`로 브라우저에서 앱 실행
-- Playwright smoke test: 홈 화면 로드, 캔버스 표시
-
-병렬 작업:
-- 개발자 A: Vite/React 앱, 캔버스 뼈대
-- 개발자 B: Vitest/Playwright 설정, 테스트 헬퍼
-
-### 단계 1. 단색 드로잉 캔버스 구현
+### 단계 1. Guided Input UI 구현
 목표:
-- 검은색 단일 선 드로잉
-- stroke 저장
-- undo/reset UI
+- 사용 가능한 대표 모티프를 UI에 표시한다.
+- 사용자가 모티프를 선택하거나 따라 그릴 수 있게 한다.
+- 현재 입력 대상이 무엇인지 명확히 보이게 한다.
 
 선행 계약:
-- `Stroke` shape
-- canvas input 이벤트 이름
+- `Motif` 목록
+- `GuideTemplate` shape
+- 선택 상태와 입력 상태 UI 계약
 
 TDD:
-- pointer 입력 후 stroke 수 증가 failing test
-- undo/reset reducer failing test
+- guide 목록 렌더 failing test
+- guide 선택 상태 변경 failing test
+- 선택된 guide overlay 렌더 failing test
 
 작업:
-- pointer 이벤트 기반 stroke 수집
-- canvas 렌더링
-- undo/reset reducer 구현
-- 검은색 단일 브러시 고정
+- guide palette UI 추가
+- 선택된 guide 상태 저장
+- canvas overlay 또는 hint path 렌더
+- 현재 입력 중인 motif 표시
 
 병렬 처리:
-- Erick: pointer 이벤트와 canvas 렌더링
-- Gabriel: reducer와 fixture
-
-검증 명령:
-- `npm run test`
-- 필요 시 `npm run test -- canvas`
-
-완료 조건:
-- 사용자가 마우스/터치로 선을 그릴 수 있다.
-- undo/reset이 동작한다.
-- 색상 팔레트가 없다.
-
-검증:
-- 최신 `develop` 동기화 후 `npm run test`
-- 단위 테스트: reducer, stroke serializer
-- 컴포넌트 테스트: 드로잉 후 stroke 수 증가
-- Playwright: 드래그로 선 생성, undo로 제거, reset으로 초기화
-
-병렬 작업:
-- 개발자 A: 캔버스 입력/렌더링
-- 개발자 B: undo/reset reducer, 테스트 fixture
-
-### 단계 2. 장면 해석 엔진 MVP
-목표:
-- 자유 스케치를 완전 인식하려 하지 않고, 대표 motif 규칙 엔진을 만든다.
-- 초기 지원 motif: `campfire`, `rain`, `tree`, `star`, `wind`
-
-선행 계약:
-- 지원 motif 목록
-- `unknown` 정책
-
-TDD:
-- fixture 기반 분류 failing test
-- `unknown` fallback failing test
-
-작업:
-- stroke 묶음 규칙 설계
-- bounding box, point density, line orientation 같은 휴리스틱 작성
-- `unknown` fallback 추가
-- motif confidence 계산
-
-병렬 처리:
-- Erick: 디버그 overlay, motif 시각화
-- Gabriel: classifier 규칙 엔진, fixture
-
-검증 명령:
-- `npm run test`
-- classifier 대상 테스트 명령
-
-완료 조건:
-- 테스트 fixture 기준 대표 motif 분류가 재현 가능하다.
-- 애매한 입력은 `unknown` 또는 일반 ambience로 안전하게 처리된다.
-
-검증:
-- 최신 `develop` 동기화 후 `npm run test`
-- 단위 테스트: motif classifier fixture 세트
-- 통합 테스트: stroke 입력 후 scene element 생성
-- 브라우저 수동 검증: 예시 드로잉 5종을 그려 motif badge 확인
-
-병렬 작업:
-- 개발자 A: stroke grouping UI, 디버그 overlay
-- 개발자 B: classifier 규칙 엔진과 fixture 세트
-
-### 단계 3. 오디오 레이어 엔진 구현
-목표:
-- motif별 사운드 레이어 재생
-- 새 요소 추가 시 기존 사운드를 유지한 채 레이어 누적
-
-선행 계약:
-- `AudioLayer` shape
-- UI에 넘길 최소 오디오 상태 값
-
-TDD:
-- layer diff failing test
-- audio state transition failing test
-
-작업:
-- Tone.js adapter 작성
-- motif -> audio asset mapping
-- layer diff 알고리즘 구현
-- 사용자 첫 입력 이후 `Tone.start()` 처리
-
-병렬 처리:
-- Erick: 오디오 상태 UI 연결
-- Gabriel: adapter, asset loader, layer diff
-
-검증 명령:
-- `npm run test`
-- adapter/mock 대상 테스트 명령
-
-완료 조건:
-- 첫 motif가 재생된다.
-- 둘째 motif가 들어오면 첫 레이어를 유지한 채 추가된다.
-- reset 시 모든 레이어가 중지된다.
-
-검증:
-- 최신 `develop` 동기화 후 `npm run test`
-- 단위 테스트: layer diff 계산
-- 통합 테스트: adapter mock 기반 start/stop 호출 검증
-- Playwright: 사용자 입력 후 오디오 시작 버튼/상태 표시 확인
-
-병렬 작업:
-- 개발자 A: 오디오 상태 UI, 현재 활성 레이어 표시
-- 개발자 B: Tone.js adapter, asset loader, layer diff
-
-### 단계 4. 수정 흐름과 오디오 동기화
-목표:
-- 잘못 그린 요소를 undo 또는 erase로 수정
-- 삭제된 요소의 사운드 레이어도 함께 제거
-
-선행 계약:
-- undo/delete 정책
-- 삭제 시 fade-out 규칙
-
-TDD:
-- delete 이후 layer 감소 failing test
-- undo 후 scene/audio sync failing test
-
-작업:
-- 요소 단위 선택 삭제 또는 최근 stroke undo
-- scene 재계산
-- audio layer 제거 시 fade out 처리
-
-병렬 처리:
-- Erick: erase/undo UI
-- Gabriel: sync reducer, fade-out 정책
-
-검증 명령:
-- `npm run test`
-- 관련 integration test 명령
-
-완료 조건:
-- 사용자가 실수한 요소를 수정할 수 있다.
-- 삭제된 요소에 연결된 사운드가 자연스럽게 사라진다.
-
-검증:
-- 최신 `develop` 동기화 후 `npm run test`
-- 단위 테스트: 삭제 후 scene/audio sync
-- 통합 테스트: undo 시 layer 제거 이벤트 발생
-- Playwright: 잘못 그린 후 undo, 새로 그리기, 사운드 변경 확인
-
-병렬 작업:
-- 개발자 A: erase/undo UI와 캔버스 상호작용
-- 개발자 B: sync reducer, fade out 정책
-
-### 단계 5. 세션 경험 완성
-목표:
-- 현재 사운드 상태 확인
-- replay/pause/reset
-- 간단한 온보딩
-
-선행 계약:
-- replay/pause/reset UI 이벤트 이름
-- 접근성 최소 기준
-
-TDD:
-- controls 상호작용 failing test
-- audio state UI 노출 failing test
-
-작업:
-- 현재 활성 motif 목록 UI
-- 재생/일시정지
-- 첫 진입 안내 문구
-- 접근성 점검
-
-병렬 처리:
-- Erick: 온보딩, 컨트롤 UI
-- Gabriel: transport 제어, 접근성 테스트 셋업
+- Erick: palette, overlay, session UI
+- Gabriel: 상태 계약, 테스트 infra, fixture
 
 검증 명령:
 - `npm run test`
 - `npm run test:e2e`
 
 완료 조건:
-- 학생과 성인이 설명 없이 시작 가능하다.
-- 세션을 멈추고 다시 들을 수 있다.
+- 사용자가 입력 가능한 대표 모티프를 바로 이해할 수 있다.
+- 선택된 guide가 캔버스에 시각적으로 드러난다.
+- 기본 유즈 케이스가 브라우저에서 재현된다.
 
-검증:
-- 최신 `develop` 동기화 후 `npm run test`
-- 컴포넌트 테스트: controls 상호작용
-- Playwright: pause/replay/reset 전체 흐름
-- Axe 또는 Playwright 접근성 기본 점검
+### 단계 2. Guided Match 엔진 구현
+목표:
+- 사용자의 입력이 선택된 guide와 충분히 맞는지 판정한다.
+- 성공 시 deterministic하게 scene element를 생성한다.
+- 실패 시 사용자에게 다시 시도 가능한 상태를 제공한다.
 
-병렬 작업:
-- 개발자 A: 온보딩/컨트롤 UI
-- 개발자 B: transport 제어, 접근성 테스트 설정
+선행 계약:
+- `GuidedInputState` shape
+- match 성공/실패 기준
+- `SceneElement.source` 정책
+
+TDD:
+- trace progress 계산 failing test
+- 충분한 입력 시 match 성공 failing test
+- 부족한 입력 시 실패 또는 retry 상태 failing test
+
+작업:
+- 입력 path 정규화
+- guide template와의 단순 비교 규칙 작성
+- 성공 시 scene element 생성
+- 실패 시 상태 rollback 또는 retry 처리
+
+병렬 처리:
+- Erick: 시각 피드백, retry UX
+- Gabriel: match 판정 함수, fixture, 테스트
+
+검증 명령:
+- `npm run test`
+- 필요 시 특정 suite 실행
+
+완료 조건:
+- 지원된 guide 입력은 높은 재현성으로 같은 motif를 만든다.
+- 사용자는 현재 입력이 성공에 가까운지 알 수 있다.
+- 임의 오인식보다 실패/재시도가 더 흔한 시스템이 된다.
+
+### 단계 3. Deterministic Audio Mapping 구현
+목표:
+- 확정된 motif를 안정적으로 오디오 레이어에 매핑한다.
+- scene element 추가 시 레이어가 누적된다.
+- pause/replay/reset이 세션 단위로 동작한다.
+
+선행 계약:
+- `AudioLayer` shape
+- motif -> audio preset 매핑 규칙
+- layer add/keep/remove 정책
+
+TDD:
+- motif 추가 시 layer 추가 failing test
+- reset 시 layer 제거 failing test
+- pause/replay 상태 전이 failing test
+
+작업:
+- motif별 preset 정의
+- layer diff 계산
+- session controls 정리
+- 현재 프로토타입 오디오 구현과 guided flow 연결
+
+병렬 처리:
+- Erick: 상태 UI, 컨트롤 UX
+- Gabriel: layer diff, audio adapter, 테스트
+
+검증 명령:
+- `npm run test`
+- `npm run test:e2e`
+
+완료 조건:
+- 사용자가 3개 이상의 motif를 추가하면 레이어가 누적된다.
+- pause/replay/reset이 안정적으로 동작한다.
+- 인식 불확실성 대신 결정적인 반응을 제공한다.
+
+### 단계 4. 세션 수정 흐름과 재시도 UX
+목표:
+- 잘못된 입력을 쉽게 취소하고 다시 시도할 수 있게 한다.
+- reset/undo/retry가 scene/audio 상태와 정확히 동기화되게 한다.
+
+선행 계약:
+- undo/reset 이벤트 계약
+- 실패한 guided input 처리 정책
+
+TDD:
+- undo 후 마지막 scene/audio 제거 failing test
+- reset 후 전체 세션 초기화 failing test
+- 실패한 입력 재시도 failing test
+
+작업:
+- undo/reset reducer 정리
+- 실패 상태 UI와 retry 액션 추가
+- 제거된 scene/audio layer 정리 로직 보강
+
+검증 명령:
+- `npm run test`
+- `npm run test:e2e`
+
+완료 조건:
+- 사용자가 잘못된 입력을 바로 바로잡을 수 있다.
+- scene/audio 상태가 눈에 보이게 동기화된다.
+
+### 단계 5. Guided MVP 경험 완성
+목표:
+- 온보딩, 접근성, 상태 노출을 마무리한다.
+- MVP guided flow를 처음 사용자도 이해할 수 있게 한다.
+
+선행 계약:
+- 온보딩 문구
+- guide 성공/실패 피드백 정책
+
+TDD:
+- 온보딩 문구 노출 failing test
+- 접근성 라벨 및 controls 상태 failing test
+
+작업:
+- 온보딩 문구 추가
+- 현재 선택된 motif, 활성 layer, 오디오 상태 표시
+- pause/replay/reset 최종 정리
+
+검증 명령:
+- `npm run test`
+- `npm run test:e2e`
+
+완료 조건:
+- guided input MVP가 코드, UI, 브라우저 흐름 기준으로 이해 가능하다.
+- 처음 방문한 사용자도 무엇을 해야 할지 바로 이해한다.
 
 ### 단계 6. 브라우저 실사용 검증
 목표:
-- PRD 핵심 유즈 케이스를 실제 브라우저에서 재현
+- guided input 기반 핵심 유즈 케이스를 실제 브라우저에서 검증한다.
+- 문서와 구현의 차이를 최종 점검한다.
 
 선행 계약:
-- 핵심 유즈케이스 5종
-- trace 저장 정책
+- PRD acceptance
+- guided motif 목록과 audio mapping
 
 TDD:
-- 각 유즈케이스를 최소 1개 이상의 Playwright failing scenario로 먼저 작성한다.
+- 3-layer accumulation E2E failing test
+- replay/reset guided flow E2E failing test
 
 작업:
-- headed Playwright 시나리오 작성
-- trace/screenshot 저장
-- 수동 QA 체크리스트 실행
-
-병렬 처리:
-- Erick: 수동 QA와 UI polish
-- Gabriel: Playwright 유지보수, trace 분석
+- Playwright 시나리오 확장
+- headed/manual QA 기록
+- 남은 자유 드로잉 확장 리스크 분리
 
 검증 명령:
+- `npm run test`
 - `npm run test:e2e -- --headed`
-- `npm run test:e2e -- --trace on`
 
 완료 조건:
-- 핵심 유즈 케이스 5종이 자동화되거나 수동 체크리스트로 통과한다.
-- 실패 시 trace로 원인 확인 가능하다.
-
-검증:
-- 최신 `develop` 동기화 후 `npm run test:e2e -- --headed`
-- `npm run test:e2e -- --headed`
-- `npm run test:e2e -- --trace on`
-- 실제 브라우저에서 캔버스 드로잉과 오디오 응답 확인
-
-병렬 작업:
-- 개발자 A: 수동 QA와 UI 버그 수정
-- 개발자 B: Playwright 유지보수와 trace 분석
+- guided input MVP가 PRD acceptance와 맞는다.
+- 자유 드로잉 확장은 후속 백로그로 명확히 분리된다.
 
 ## 7. 2인 병렬 개발 구조
 ### 개발자 A 소유 영역
-- 캔버스 입력
-- 시각 UI
-- 온보딩과 컨트롤
-- 디버그 overlay
+- guide palette UI
+- canvas overlay 및 trace 시각화
+- session controls와 상태 UI
+- 수동 브라우저 QA
 
 ### 개발자 B 소유 영역
-- scene 해석 규칙
-- 오디오 엔진
-- 테스트 인프라
-- 브라우저 자동화
+- guide match 엔진
+- deterministic scene/audio mapping
+- 테스트 인프라와 자동 브라우저 검증
+- audio adapter
 
 ### 공통 계약 파일
-- `src/shared/types/scene.ts`
-- `src/shared/types/audio.ts`
-- `src/shared/contracts/events.ts`
+- `src/shared/types/domain.ts`
+- guided motif 목록과 fixture
+- 최소 audio state 노출 계약
 
 ### 병렬 작업 규칙
-- 공용 타입 변경은 PR 분리
-- 각 단계 시작 전에 fixture와 계약을 먼저 합의
-- 통합은 단계 끝에서만 수행
-- 각자 기능 브랜치에서 작업하되, 테스트 실행 전마다 최신 `develop`을 반영한다.
-- 공용 계약 파일을 건드린 날에는 상대 개발자도 `develop` 동기화 후 전체 테스트를 다시 실행한다.
+1. guided motif 목록과 success criteria는 먼저 합의한다.
+2. UI와 match 엔진은 shared contract 확정 후 병렬로 진행한다.
+3. audio mapping은 scene contract가 고정된 뒤에 병렬화한다.
+4. 자유 드로잉 실험은 guided MVP와 분리된 이슈로만 진행한다.
 
 ## 8. 테스트 케이스
 ### 단위 테스트
-1. stroke가 입력되면 point 목록과 bounding box가 계산된다.
-2. undo reducer는 마지막 stroke만 제거한다.
-3. reset reducer는 stroke, scene, audio 상태를 모두 초기화한다.
-4. classifier는 campfire fixture를 `campfire`로 분류한다.
-5. classifier는 애매한 fixture를 `unknown`으로 분류한다.
-6. layer diff는 새 motif만 추가하고 기존 motif는 유지한다.
-7. 요소 삭제 시 해당 audio layer만 stop 대상으로 계산된다.
+1. guide 선택 reducer
+2. trace progress 계산
+3. guide match 성공/실패 판정
+4. scene element 생성
+5. layer add/keep/remove diff
+6. audio state transition
 
 ### 통합 테스트
-1. 캔버스 드로잉 후 scene panel에 motif badge가 나타난다.
-2. 첫 사용자 입력 후 audio engine unlock이 수행된다.
-3. 두 번째 motif 추가 시 active layer 수가 증가한다.
-4. undo 클릭 시 active layer 수가 감소한다.
-5. reset 클릭 시 캔버스와 active layer 표시가 모두 비워진다.
+1. guide 선택 후 overlay 노출
+2. guided input 성공 후 scene badge 생성
+3. guided input 성공 후 audio layer count 증가
+4. undo/reset 후 상태 패널 동기화
 
 ### E2E 테스트
-1. 홈 화면 진입 시 검은색 단일 선 캔버스만 보이고 색상 팔레트는 없다.
-2. 캠프파이어 형태를 그리면 3초 이내에 사운드 상태가 `playing`으로 바뀐다.
-3. 별과 나무를 추가하면 layer count가 증가한다.
-4. 잘못 그린 선을 undo 하면 layer count가 감소한다.
-5. pause 후 replay 하면 다시 `playing` 상태가 된다.
-6. reset 후 새 장면을 그리면 이전 세션 사운드가 남아 있지 않다.
+1. 첫 guide 선택과 입력 성공
+2. 3개 motif 누적 후 layer 3개 이상 표시
+3. pause/replay/reset 동작
+4. 실패한 입력 재시도
 
 ## 9. 브라우저 직접 검증 시나리오
 ### 시나리오 A: 학생 사용자
-1. 앱 접속
-2. 캠프파이어를 그림
-3. 별을 추가
-4. undo 한 번 실행
-5. 다시 별을 그림
-6. pause/replay 확인
-
-성공 기준:
-- 즉시 그릴 수 있다.
-- 사운드가 누적된다.
-- 실수 수정이 쉽다.
+1. 첫 화면에서 입력 가능한 모티프를 바로 이해한다.
+2. 캠프파이어 guide를 선택하고 따라 그린다.
+3. 소리가 재생되는 것을 확인한다.
+4. 별과 나무를 추가해 레이어가 누적되는지 확인한다.
+5. reset 후 새 장면을 시작한다.
 
 ### 시나리오 B: 성인 사용자
-1. 앱 접속
-2. 비, 창문, 책상을 순서대로 그림
-3. 현재 활성 사운드 목록 확인
-4. reset 후 새로운 장면 생성
-
-성공 기준:
-- 장면이 빠르게 구성된다.
-- 작업용/집중용 분위기가 형성된다.
-- 세션 전환이 자연스럽다.
+1. 비, 창문, 조명 같은 차분한 모티프를 선택한다.
+2. guided input으로 장면을 빠르게 구성한다.
+3. replay와 pause를 반복해도 상태가 깨지지 않는지 확인한다.
+4. 작업용 배경음처럼 인식되는지 수동 평가한다.
 
 ## 10. Definition of Done
-- 핵심 유즈 케이스 5종이 통과한다.
-- TDD로 작성된 단위 테스트가 핵심 도메인을 커버한다.
-- Playwright E2E가 로컬 환경에서 재현 가능하다.
-- 모든 테스트 결과는 최신 `develop` 동기화 이후 기준으로 확인되었다.
-- 브라우저에서 실제 드로잉과 오디오 반응을 확인했다.
-- 학생/성인 사용자가 모두 `설정 없이 바로 시작 가능`한 흐름을 만족한다.
-- 배포 없이 로컬 개발 서버만으로 전체 기능을 검증할 수 있다.
+- 관련 GitHub Issue와 Project card가 최신 상태다.
+- guided input 전략이 문서와 코드에 일치한다.
+- `npm run test`와 `npm run test:e2e`가 최신 기준선에서 통과한다.
+- 남은 자유 드로잉 확장 리스크가 issue 또는 handoff에 남아 있다.
+- 다음 Codex가 이어받을 시작점이 명확하다.
 
 ## 11. 권장 일정
 ### 1주차
-- 단계 0, 1
+- guided input 계약 확정
+- guide palette와 overlay 구현
 
 ### 2주차
-- 단계 2, 3
+- guide match 엔진 구현
+- scene mapping과 fixture 정리
 
 ### 3주차
-- 단계 4, 5
+- deterministic audio mapping
+- session controls 정리
 
 ### 4주차
-- 단계 6, 버그 수정, polish
+- E2E 확장
+- manual QA 및 handoff 정리
 
 ## 12. 실행 명령 초안
-```bash
-git fetch origin
-git pull --rebase origin develop
-npm install
-npm run dev
-npm run test
-npm run test:watch
-npm run test:e2e
-npm run test:e2e -- --headed
-npm run test:e2e -- --trace on
-```
-
-브랜치 전략 메모:
-- 기능 개발은 각자 작업 브랜치에서 진행한다.
-- 테스트 실행 직전에는 항상 최신 `develop`을 먼저 반영한다.
-- 충돌이 발생하면 해결 후 전체 테스트를 다시 실행한다.
-
-로컬 환경 메모:
-- 배포 환경 설정은 하지 않는다.
-- `.env`가 필요하다면 로컬 전용 최소 값만 사용한다.
-- 오디오 파일은 저장소 내부 `public` 또는 `src/assets`에서 직접 불러온다.
+- 개발 서버: `npm run dev`
+- 단위 테스트: `npm run test`
+- E2E: `npm run test:e2e`
+- 특정 suite 예시:
+  - `npm run test -- tests/unit`
+  - `npm run test:e2e -- --headed`
 
 ## 13. 참고 자료
-- React: [Creating a React App](https://react.dev/learn/start-a-new-react-project)
-- React: [Build a React app from Scratch](https://react.dev/learn/build-a-react-app-from-scratch)
-- Vite: [Getting Started](https://vite.dev/guide/)
-- Vitest: [Getting Started](https://vitest.dev/guide/)
-- Playwright: [TypeScript](https://playwright.dev/docs/test-typescript)
-- Playwright: [Running and debugging tests](https://playwright.dev/docs/running-tests)
-- Tone.js: [Tone.js docs](https://tonejs.github.io/)
-- Tone.js: [Player](https://tonejs.github.io/docs/14.5.3/Player)
-- Tone.js: [Loop](https://tonejs.github.io/docs/14.7.77/Loop)
-- MDN: [Canvas tutorial](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial)
+- `../10-product/prd.md`
+- `../00-governance/codex-collaboration-protocol.md`
+- `../00-governance/github-issue-seeds.md`
