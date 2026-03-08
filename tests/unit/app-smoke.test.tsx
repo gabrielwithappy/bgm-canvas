@@ -83,6 +83,54 @@ describe("App bootstrap", () => {
     expect(screen.getByText(/single black line active/i)).toBeInTheDocument();
   });
 
+  it("uses the selected guide motif after drawing", async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /rain guide/i }));
+
+    const canvas = screen.getByLabelText(
+      /bgm canvas drawing surface/i,
+    ) as HTMLCanvasElement;
+
+    canvas.getBoundingClientRect = () =>
+      ({
+        left: 0,
+        top: 0,
+        width: 960,
+        height: 540,
+        right: 960,
+        bottom: 540,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    fireEvent.pointerDown(canvas, {
+      clientX: 20,
+      clientY: 160,
+      pointerId: 1,
+      buttons: 1,
+    });
+    fireEvent.pointerMove(canvas, {
+      clientX: 220,
+      clientY: 190,
+      pointerId: 1,
+      buttons: 1,
+    });
+    fireEvent.pointerUp(canvas, {
+      clientX: 220,
+      clientY: 190,
+      pointerId: 1,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("scene-count")).toHaveTextContent("1");
+      expect(screen.getByTestId("audio-layer-count")).toHaveTextContent("1");
+      expect(screen.getByTestId("audio-state")).toHaveTextContent("playing");
+      expect(screen.getByTestId("scene-badge")).toHaveTextContent("rain");
+    });
+  });
+
   it("undoes the most recent stroke and resets the session", async () => {
     render(<App />);
 

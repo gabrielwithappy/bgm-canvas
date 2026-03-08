@@ -30,6 +30,20 @@ test("switches the selected guide and shows the matching overlay", async ({
   await expect(page.getByLabel("Rain guide overlay")).toBeVisible();
 });
 
+test("maps a guided drawing to the selected motif badge", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Rain guide" }).click();
+
+  const canvas = page.getByLabel("BGM Canvas drawing surface");
+  await canvas.hover({ position: { x: 120, y: 200 } });
+  await page.mouse.down();
+  await page.mouse.move(280, 220, { steps: 6 });
+  await page.mouse.up();
+
+  await expect(page.getByTestId("scene-badge").first()).toContainText("rain");
+});
+
 test("stores one stroke after drawing on the canvas", async ({ page }) => {
   await page.goto("/");
 
@@ -43,7 +57,7 @@ test("stores one stroke after drawing on the canvas", async ({ page }) => {
   await expect(page.getByTestId("scene-count")).toHaveText("1");
   await expect(page.getByTestId("audio-layer-count")).toHaveText("1");
   await expect(page.getByTestId("audio-state")).toHaveText("playing");
-  await expect(page.getByTestId("scene-badge").first()).toContainText("tree");
+  await expect(page.getByTestId("scene-badge").first()).toContainText("campfire");
 });
 
 test("undo and reset control the current drawing session", async ({ page }) => {
