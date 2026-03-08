@@ -112,14 +112,26 @@ describe("App bootstrap", () => {
       buttons: 1,
     });
     fireEvent.pointerMove(canvas, {
+      clientX: 120,
+      clientY: 175,
+      pointerId: 1,
+      buttons: 1,
+    });
+    fireEvent.pointerMove(canvas, {
       clientX: 220,
       clientY: 190,
       pointerId: 1,
       buttons: 1,
     });
+    fireEvent.pointerMove(canvas, {
+      clientX: 320,
+      clientY: 210,
+      pointerId: 1,
+      buttons: 1,
+    });
     fireEvent.pointerUp(canvas, {
-      clientX: 220,
-      clientY: 190,
+      clientX: 320,
+      clientY: 210,
       pointerId: 1,
     });
 
@@ -127,8 +139,63 @@ describe("App bootstrap", () => {
       expect(screen.getByTestId("scene-count")).toHaveTextContent("1");
       expect(screen.getByTestId("audio-layer-count")).toHaveTextContent("1");
       expect(screen.getByTestId("audio-state")).toHaveTextContent("playing");
+      expect(screen.getByTestId("guided-match-state")).toHaveTextContent(
+        "matched",
+      );
       expect(screen.getByTestId("scene-badge")).toHaveTextContent("rain");
     });
+  });
+
+  it("does not create a scene element when the guided input is too short", async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /rain guide/i }));
+
+    const canvas = screen.getByLabelText(
+      /bgm canvas drawing surface/i,
+    ) as HTMLCanvasElement;
+
+    canvas.getBoundingClientRect = () =>
+      ({
+        left: 0,
+        top: 0,
+        width: 960,
+        height: 540,
+        right: 960,
+        bottom: 540,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    fireEvent.pointerDown(canvas, {
+      clientX: 20,
+      clientY: 160,
+      pointerId: 1,
+      buttons: 1,
+    });
+    fireEvent.pointerMove(canvas, {
+      clientX: 55,
+      clientY: 168,
+      pointerId: 1,
+      buttons: 1,
+    });
+    fireEvent.pointerUp(canvas, {
+      clientX: 55,
+      clientY: 168,
+      pointerId: 1,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("stroke-count")).toHaveTextContent("1");
+      expect(screen.getByTestId("scene-count")).toHaveTextContent("0");
+      expect(screen.getByTestId("audio-layer-count")).toHaveTextContent("0");
+      expect(screen.getByTestId("audio-state")).toHaveTextContent("idle");
+      expect(screen.getByTestId("guided-match-state")).toHaveTextContent(
+        "failed",
+      );
+    });
+    expect(screen.getByText(/no scene elements yet/i)).toBeInTheDocument();
   });
 
   it("undoes the most recent stroke and resets the session", async () => {

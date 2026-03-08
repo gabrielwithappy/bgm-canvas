@@ -28,6 +28,14 @@ export type GuideTemplate = {
   previewPath: Point[];
 };
 
+export type GuidedInputStatus = "idle" | "tracing" | "matched" | "failed";
+
+export type GuidedInputState = {
+  selectedGuideId: string | null;
+  status: GuidedInputStatus;
+  progress: number;
+};
+
 export type SceneElement = {
   id: string;
   strokeIds: string[];

@@ -2,33 +2,46 @@ import { useMemo, useReducer, useState } from "react";
 import { useAudioSession } from "../features/audio/hooks/useAudioSession";
 import { deriveAudioLayers } from "../features/audio/model/audioLayers";
 import { CanvasSurface } from "../features/canvas/CanvasSurface";
+import { evaluateGuideMatch } from "../features/guides/model/guideMatch";
 import { guideTemplates } from "../features/guides/model/guideTemplates";
 import { strokeSessionReducer } from "../features/canvas/model/strokeSession";
 import { classifyStrokes } from "../features/scene/model/classifyScene";
 import { toGuidedSceneElement } from "../features/scene/model/guidedScene";
-import type { GuideTemplate, SceneElement, Stroke } from "../shared/types/domain";
+import type {
+  GuideTemplate,
+  GuidedInputState,
+  SceneElement,
+  Stroke,
+} from "../shared/types/domain";
 import "./App.css";
+
+type GuidedAttempt = {
+  guide: GuideTemplate;
+  match: GuidedInputState;
+};
 
 export function App() {
   const [strokes, dispatch] = useReducer(strokeSessionReducer, [] as Stroke[]);
-  const [guidedSelections, setGuidedSelections] = useState<
-    Record<string, GuideTemplate>
+  const [guidedAttempts, setGuidedAttempts] = useState<
+    Record<string, GuidedAttempt>
   >({});
-  const [selectedGuideId, setSelectedGuideId] = useState<string>(
-    guideTemplates[0]?.id ?? "",
-  );
+  const [selectedGuideId, setSelectedGuideId] = useState<string>("");
   const sceneElements = useMemo(
     () =>
-      strokes.map((stroke) => {
-        const guidedSelection = guidedSelections[stroke.id];
+      strokes.flatMap((stroke) => {
+        const guidedAttempt = guidedAttempts[stroke.id];
 
-        if (guidedSelection) {
-          return toGuidedSceneElement(stroke, guidedSelection);
+        if (guidedAttempt) {
+          if (guidedAttempt.match.status === "matched") {
+            return [toGuidedSceneElement(stroke, guidedAttempt.guide)];
+          }
+
+          return [];
         }
 
-        return classifyStrokes([stroke])[0];
+        return [classifyStrokes([stroke])[0]];
       }),
-    [guidedSelections, strokes],
+    [guidedAttempts, strokes],
   );
   const { pause, replay, reset: resetAudio, sessionState } =
     useAudioSession(sceneElements);
@@ -39,10 +52,25 @@ export function App() {
       guideTemplates.find((guide) => guide.id === selectedGuideId) ?? null,
     [selectedGuideId],
   );
+  const latestGuidedInput = useMemo(() => {
+    for (let index = strokes.length - 1; index >= 0; index -= 1) {
+      const guidedAttempt = guidedAttempts[strokes[index].id];
+
+      if (guidedAttempt) {
+        return guidedAttempt.match;
+      }
+    }
+
+    return {
+      selectedGuideId: selectedGuide?.id ?? null,
+      status: "idle",
+      progress: 0,
+    } satisfies GuidedInputState;
+  }, [guidedAttempts, selectedGuide?.id, strokes]);
 
   const resetSession = async () => {
     dispatch({ type: "reset" });
-    setGuidedSelections({});
+    setGuidedAttempts({});
     await resetAudio();
   };
 
@@ -63,9 +91,12 @@ export function App() {
           onStrokeComplete={(stroke) => {
             dispatch({ type: "add", stroke });
             if (selectedGuide) {
-              setGuidedSelections((currentSelections) => ({
-                ...currentSelections,
-                [stroke.id]: selectedGuide,
+              setGuidedAttempts((currentAttempts) => ({
+                ...currentAttempts,
+                [stroke.id]: {
+                  guide: selectedGuide,
+                  match: evaluateGuideMatch(stroke, selectedGuide),
+                },
               }));
             }
           }}
@@ -128,6 +159,16 @@ export function App() {
                 <dt>Audio state</dt>
                 <dd data-testid="audio-state">{sessionState}</dd>
               </div>
+              <div>
+                <dt>Guide match</dt>
+                <dd data-testid="guided-match-state">{latestGuidedInput.status}</dd>
+              </div>
+              <div>
+                <dt>Match progress</dt>
+                <dd data-testid="guided-match-progress">
+                  {Math.round(latestGuidedInput.progress * 100)}%
+                </dd>
+              </div>
             </dl>
 
             <div className="scene-badges" aria-label="Detected motifs">
@@ -168,19 +209,19 @@ export function App() {
               <button
                 disabled={strokes.length === 0}
                 onClick={() => {
-                  setGuidedSelections((currentSelections) => {
+                  setGuidedAttempts((currentAttempts) => {
                     if (strokes.length === 0) {
-                      return currentSelections;
+                      return currentAttempts;
                     }
 
-                    const nextSelections = { ...currentSelections };
+                    const nextAttempts = { ...currentAttempts };
                     const latestStroke = strokes.at(-1);
 
                     if (latestStroke) {
-                      delete nextSelections[latestStroke.id];
+                      delete nextAttempts[latestStroke.id];
                     }
 
-                    return nextSelections;
+                    return nextAttempts;
                   });
                   dispatch({ type: "undo" });
                 }}

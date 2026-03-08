@@ -38,10 +38,30 @@ test("maps a guided drawing to the selected motif badge", async ({ page }) => {
   const canvas = page.getByLabel("BGM Canvas drawing surface");
   await canvas.hover({ position: { x: 120, y: 200 } });
   await page.mouse.down();
-  await page.mouse.move(280, 220, { steps: 6 });
+  await page.mouse.move(280, 220, { steps: 8 });
   await page.mouse.up();
 
+  await expect(page.getByTestId("guided-match-state")).toHaveText("matched");
   await expect(page.getByTestId("scene-badge").first()).toContainText("rain");
+});
+
+test("keeps a short guided stroke in failed state without a scene badge", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Rain guide" }).click();
+
+  const canvas = page.getByLabel("BGM Canvas drawing surface");
+  await canvas.hover({ position: { x: 120, y: 200 } });
+  await page.mouse.down();
+  await page.mouse.move(145, 206, { steps: 2 });
+  await page.mouse.up();
+
+  await expect(page.getByTestId("guided-match-state")).toHaveText("failed");
+  await expect(page.getByTestId("scene-count")).toHaveText("0");
+  await expect(page.getByTestId("audio-state")).toHaveText("idle");
+  await expect(page.getByText("No scene elements yet.")).toBeVisible();
 });
 
 test("stores one stroke after drawing on the canvas", async ({ page }) => {
@@ -57,7 +77,7 @@ test("stores one stroke after drawing on the canvas", async ({ page }) => {
   await expect(page.getByTestId("scene-count")).toHaveText("1");
   await expect(page.getByTestId("audio-layer-count")).toHaveText("1");
   await expect(page.getByTestId("audio-state")).toHaveText("playing");
-  await expect(page.getByTestId("scene-badge").first()).toContainText("campfire");
+  await expect(page.getByTestId("scene-badge").first()).toContainText("tree");
 });
 
 test("undo and reset control the current drawing session", async ({ page }) => {
