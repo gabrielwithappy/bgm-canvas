@@ -5,15 +5,31 @@ import { CanvasSurface } from "../features/canvas/CanvasSurface";
 import { guideTemplates } from "../features/guides/model/guideTemplates";
 import { strokeSessionReducer } from "../features/canvas/model/strokeSession";
 import { classifyStrokes } from "../features/scene/model/classifyScene";
+import { toGuidedSceneElement } from "../features/scene/model/guidedScene";
 import type { GuideTemplate, SceneElement, Stroke } from "../shared/types/domain";
 import "./App.css";
 
 export function App() {
   const [strokes, dispatch] = useReducer(strokeSessionReducer, [] as Stroke[]);
+  const [guidedSelections, setGuidedSelections] = useState<
+    Record<string, GuideTemplate>
+  >({});
   const [selectedGuideId, setSelectedGuideId] = useState<string>(
     guideTemplates[0]?.id ?? "",
   );
-  const sceneElements = classifyStrokes(strokes);
+  const sceneElements = useMemo(
+    () =>
+      strokes.map((stroke) => {
+        const guidedSelection = guidedSelections[stroke.id];
+
+        if (guidedSelection) {
+          return toGuidedSceneElement(stroke, guidedSelection);
+        }
+
+        return classifyStrokes([stroke])[0];
+      }),
+    [guidedSelections, strokes],
+  );
   const { pause, replay, reset: resetAudio, sessionState } =
     useAudioSession(sceneElements);
   const audioLayers = deriveAudioLayers(sceneElements, sessionState);
@@ -26,6 +42,7 @@ export function App() {
 
   const resetSession = async () => {
     dispatch({ type: "reset" });
+    setGuidedSelections({});
     await resetAudio();
   };
 
@@ -45,6 +62,12 @@ export function App() {
         <CanvasSurface
           onStrokeComplete={(stroke) => {
             dispatch({ type: "add", stroke });
+            if (selectedGuide) {
+              setGuidedSelections((currentSelections) => ({
+                ...currentSelections,
+                [stroke.id]: selectedGuide,
+              }));
+            }
           }}
           selectedGuide={selectedGuide}
           strokes={strokes}
@@ -145,6 +168,20 @@ export function App() {
               <button
                 disabled={strokes.length === 0}
                 onClick={() => {
+                  setGuidedSelections((currentSelections) => {
+                    if (strokes.length === 0) {
+                      return currentSelections;
+                    }
+
+                    const nextSelections = { ...currentSelections };
+                    const latestStroke = strokes.at(-1);
+
+                    if (latestStroke) {
+                      delete nextSelections[latestStroke.id];
+                    }
+
+                    return nextSelections;
+                  });
                   dispatch({ type: "undo" });
                 }}
                 type="button"
