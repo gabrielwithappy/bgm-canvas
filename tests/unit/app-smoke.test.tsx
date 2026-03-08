@@ -16,7 +16,24 @@ describe("App bootstrap", () => {
     expect(
       screen.getByLabelText(/bgm canvas drawing surface/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /choose a motif guide/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /campfire guide/i }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("audio-state")).toHaveTextContent("idle");
+  });
+
+  it("shows the selected guide in the status panel and canvas overlay", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /rain guide/i }));
+
+    expect(screen.getByTestId("selected-guide")).toHaveTextContent("Rain");
+    expect(
+      screen.getByLabelText(/rain guide overlay/i),
+    ).toBeInTheDocument();
   });
 
   it("stores a completed stroke after pointer drawing", async () => {

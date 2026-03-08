@@ -16,7 +16,17 @@ export type Motif =
   | "tree"
   | "star"
   | "sea"
+  | "window"
+  | "lamp"
+  | "desk"
   | "unknown";
+
+export type GuideTemplate = {
+  id: string;
+  motif: Motif;
+  label: string;
+  previewPath: Point[];
+};
 
 export type SceneElement = {
   id: string;

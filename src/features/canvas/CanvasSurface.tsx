@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import type { Stroke } from "../../shared/types/domain";
+import type { GuideTemplate, Stroke } from "../../shared/types/domain";
 
 type CanvasSurfaceProps = {
   strokes: Stroke[];
   onStrokeComplete: (stroke: Stroke) => void;
+  selectedGuide: GuideTemplate | null;
   width?: number;
   height?: number;
 };
@@ -50,6 +51,7 @@ function drawStroke(
 export function CanvasSurface({
   strokes,
   onStrokeComplete,
+  selectedGuide,
   width = 960,
   height = 540,
 }: CanvasSurfaceProps) {
@@ -137,6 +139,21 @@ export function CanvasSurface({
       </div>
 
       <div className="canvas-frame">
+        {selectedGuide ? (
+          <svg
+            aria-label={`${selectedGuide.label} guide overlay`}
+            className="canvas-guide-overlay"
+            viewBox={`0 0 ${width} ${height}`}
+          >
+            <path
+              d={selectedGuide.previewPath
+                .map((point, index) =>
+                  `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`,
+                )
+                .join(" ")}
+            />
+          </svg>
+        ) : null}
         <canvas
           aria-label="BGM Canvas drawing surface"
           className="canvas-surface"
