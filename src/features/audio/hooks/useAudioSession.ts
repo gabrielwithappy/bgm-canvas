@@ -1,20 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { SceneElement } from "../../../shared/types/domain";
 import type { AudioSessionState } from "../model/audioLayers";
+import { resolveAudioPreset } from "../model/audioPresets";
 
 type AudioNodes = {
   gain: GainNode;
   oscillator: OscillatorNode;
-};
-
-const motifFrequencies: Record<SceneElement["motif"], number> = {
-  campfire: 220,
-  rain: 320,
-  wind: 270,
-  tree: 196,
-  star: 523,
-  sea: 174,
-  unknown: 246,
+  filter?: BiquadFilterNode;
 };
 
 export function useAudioSession(sceneElements: SceneElement[]) {
@@ -47,6 +39,7 @@ export function useAudioSession(sceneElements: SceneElement[]) {
     for (const [, node] of nodesRef.current) {
       node.oscillator.stop();
       node.oscillator.disconnect();
+      node.filter?.disconnect();
       node.gain.disconnect();
     }
 
@@ -69,6 +62,7 @@ export function useAudioSession(sceneElements: SceneElement[]) {
       if (!nextIds.has(elementId)) {
         nodes.oscillator.stop();
         nodes.oscillator.disconnect();
+        nodes.filter?.disconnect();
         nodes.gain.disconnect();
         nodesRef.current.delete(elementId);
       }
@@ -81,15 +75,29 @@ export function useAudioSession(sceneElements: SceneElement[]) {
 
       const oscillator = context.createOscillator();
       const gain = context.createGain();
+      const preset = resolveAudioPreset(element.motif);
 
-      oscillator.type = element.motif === "sea" ? "sine" : "triangle";
-      oscillator.frequency.value = motifFrequencies[element.motif];
+      oscillator.type = preset.oscillatorType;
+      oscillator.frequency.value = preset.frequency;
       gain.gain.value = 0.018 + element.confidence * 0.012;
-      oscillator.connect(gain);
+
+      let filter: BiquadFilterNode | undefined = undefined;
+
+      if (preset.filter) {
+        filter = context.createBiquadFilter();
+        filter.type = preset.filter.type;
+        filter.frequency.value = preset.filter.frequency;
+
+        oscillator.connect(filter);
+        filter.connect(gain);
+      } else {
+        oscillator.connect(gain);
+      }
+
       gain.connect(context.destination);
       oscillator.start();
 
-      nodesRef.current.set(element.id, { oscillator, gain });
+      nodesRef.current.set(element.id, { oscillator, gain, filter });
     }
   };
 

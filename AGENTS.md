@@ -50,8 +50,7 @@ next: <single next action>
 
 ## Local Skills
 이 프로젝트는 `agent-starter`의 superpowers 스킬 묶음을 Codex용 로컬 스킬로 복사해 `./.codex/skills/superpowers/`에 저장한다.
-작업이 아래 트리거와 맞으면 해당 `SKILL.md`를 먼저 읽고 지침을 따른다.
-
+작업이 아래 트리거와 맞으면 해당 `SKILL.md`를 먼저 읽고 지침을 따른다.cd .
 - `using-superpowers`: 대화를 시작하거나 어떤 스킬을 먼저 써야 할지 판단할 때. 파일: `./.codex/skills/superpowers/using-superpowers/SKILL.md`
 - `brainstorming`: 구현 전에 접근 방식 비교나 설계 대안 정리가 필요할 때. 파일: `./.codex/skills/superpowers/brainstorming/SKILL.md`
 - `writing-plans`: 구현 계획이나 작업 분해 문서를 새로 쓸 때. 파일: `./.codex/skills/superpowers/writing-plans/SKILL.md`
