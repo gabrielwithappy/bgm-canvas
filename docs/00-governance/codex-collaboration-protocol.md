@@ -240,19 +240,23 @@ Codex 사이 discussion은 채팅처럼 실시간으로 이어가는 것이 아�
 5. 사람 개발자가 최종 방향을 정하거나, 이미 명확한 경우 문서/PR로 확정한다.
 
 ## 11. Current Handoff Snapshot
-- 기준 시점: 2026-03-07
-- GitHub 확인 결과: `origin/develop` fetch 완료, 열린 Issue/PR은 확인되지 않음
-- 현재 공용 계약 상태: `Stroke`, `Motif`, `SceneElement`, `AudioLayer`는 구현 계획 문서의 shape를 기준으로 유지한다.
-- 현재 작은 작업 단위:
-  - 작업 A: `단계 0 부트스트랩` 범위에서 React/Vite 앱 셸, 빈 캔버스, smoke test, Playwright smoke를 먼저 고정한다.
-  - 작업 B: 이후 단계 1에서 pointer drawing, undo/reset reducer, scene/audio 도메인을 분리 구현한다.
-- 현재 Codex handoff:
-  - Gabriel Codex: 테스트 인프라, 앱 부트스트랩, 공용 타입 파일 위치 확정, 자동 검증
-  - 다른 개발자 Codex: 이후 단계에서 canvas interaction, session UI, 수동 브라우저 QA
-- 병렬 처리 경계:
-  - 지금은 공용 타입 파일 위치와 테스트 구조가 확정되기 전이므로 `단계 0` 안에서는 shared contract 변경을 병렬 처리하지 않는다.
-  - `단계 0` 완료 후에는 `canvas/UI`와 `scene/audio/test`를 분리해서 병렬 처리한다.
-6. 결론이 재사용될 가치가 있으면 `src/bgm-canvas/docs/` 문서에 반영한다.
+- 기준 시점: 2026-03-14
+- 상태: **MVP 완료, 회고 진행 중**
+- GitHub 확인 결과: `origin/develop` 최신, 열린 PR 없음, Issue #20(회고) 1개 오픈
+- 현재 공용 계약 상태: `Motif`, `SceneElement`, `AudioLayer` shape 확정, 변경 없음
+- 완료된 구현:
+  - Guided input UI, guide match 엔진, deterministic scene mapping
+  - Colored noise 오디오 엔진 (white/pink/brown noise per motif)
+  - Audio layer 누적, undo/reset/pause/replay
+  - 단위 테스트 21개, E2E 테스트 6개 통과
+- 추가된 협업 인프라:
+  - AGENTS.md에 MEMORY.md 관리 규약 추가
+  - MEMORY.md 프로젝트 루트에 초기화
+  - agents-template.md 생성 (다음 프로젝트 재사용 가능)
+- 다음 Codex 인수 시작점:
+  - Issue #20 회고 마무리 후 프로젝트 종료
+  - 후속 개발 재개 시 `docs/20-planning/` Current Execution Slice의 후속 백로그 참고
+- 결론이 재사용될 가치가 있으면 `docs/` 문서에 반영한다.
 
 ### discussion 응답 규칙
 - “찬성/반대”만 쓰지 말고 이유와 영향 범위를 같이 쓴다.

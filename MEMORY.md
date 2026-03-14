@@ -1,5 +1,10 @@
 ## 2026-03-14 | Gabriel-Codex
-- 완료: colored noise 오디오 엔진 전환 (PR #19 → develop 머지), 이슈 #16 #17 #18 closed
-- 현재 상태: develop 브랜치, 테스트 21 + E2E 6 전부 통과, 오픈 이슈 없음
-- 다음: Issue #20 회고 논의 마무리
+- 완료:
+  - PR #19 머지 (colored noise 오디오 엔진, oscillator 제거)
+  - 이슈 #16 #17 #18 closed, #20 MVP 회고 논의 오픈
+  - AGENTS.md Memory 섹션 추가 + Startup Order 갱신
+  - MEMORY.md 초기화 (프로젝트 루트)
+  - agents-template.md 생성 (범용 AGENTS.md 시작점, 서브에이전트 3라운드 리뷰 완료)
+- 현재 상태: develop 브랜치, 테스트 21 + E2E 6 통과, 오픈 이슈 #20(회고) 1개
+- 다음: Issue #20 Erick 피드백 대기, 프로젝트 완료
 - 사람 결정 필요: 없음

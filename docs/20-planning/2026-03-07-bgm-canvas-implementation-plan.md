@@ -202,19 +202,21 @@ type AudioLayer = {
 각 단계는 `완료 조건`, `검증 방법`, `병렬 작업`이 명확해야 한다.
 
 ### 6-0. Current Execution Slice
-- 기준 시점: 2026-03-08
-- 현재 착수 범위: `입력 모델 전환 준비`
-- 이번 실행의 목표:
-  - MVP 입력 전략을 자유 드로잉 해석 중심에서 guided input 중심으로 공식화
-  - PRD, 구현 계획, issue seed를 새 입력 모델에 맞게 정렬
-  - 현재 프로토타입의 자유 stroke classifier는 유지하되, 다음 구현 slice의 기본 방향을 guide 기반으로 전환
-- 이번 실행에서 의도적으로 미루는 항목:
-  - 다중 stroke 객체 인식의 본격 확장
-  - 완전 자유 드로잉 품질 개선
-  - 고급 audio polish
-- handoff 메모:
-  - 다음 Codex는 guided motif, input success criteria, deterministic audio mapping을 shared contract 시작점으로 사용한다.
-  - 기존 `src/features/scene/model/classifyScene.ts`는 임시 프로토타입으로 보고, 장기 기준선으로 간주하지 않는다.
+- 기준 시점: 2026-03-14
+- 현재 상태: **MVP 완료**
+- 완료된 항목:
+  - 단계 0~5 전 구현 완료 (guided input, scene mapping, audio engine, session controls)
+  - oscillator 기반 전자음 → colored noise (white/pink/brown) 기반 앰비언스로 전환 (PR #19)
+  - 단위 테스트 21개, E2E 테스트 6개 전부 통과
+  - 이슈 #16 #17 #18 closed
+  - MEMORY.md 관리 규약 AGENTS.md에 추가
+  - agents-template.md 생성 (범용 AGENTS.md 시작점)
+- 현재 열린 항목:
+  - Issue #20: MVP 완료 회고 및 agent 협업 경험 공유 (진행 중)
+- 후속 백로그 (MVP 이후):
+  - 실제 자연음 샘플(.mp3/.ogg) 기반 오디오 전환
+  - 자유 드로잉 모드 실험
+  - 모바일/터치 입력 지원
 
 ### 단계 0. 프로젝트 부트스트랩
 목표:
