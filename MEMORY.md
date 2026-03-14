@@ -1,3 +1,9 @@
+## 2026-03-14 | Gabriel-Codex (2)
+- 완료: agents-template.md 모호함 처리 규칙 추가 (What/How 구분, 작업 완료 후 전달 원칙)
+- 현재 상태: develop 최신, agents-template.md 확정
+- 다음: 없음
+- 사람 결정 필요: 없음
+
 ## 2026-03-14 | Gabriel-Codex
 - 완료:
   - PR #19 머지 (colored noise 오디오 엔진, oscillator 제거)
