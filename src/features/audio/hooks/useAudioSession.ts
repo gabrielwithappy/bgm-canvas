@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import type { SceneElement } from "../../../shared/types/domain";
 import type { AudioSessionState } from "../model/audioLayers";
 import { resolveAudioPreset } from "../model/audioPresets";
+import { generateNoiseBuffer } from "../model/noiseBuffer";
 
 type AudioNodes = {
+  source: AudioBufferSourceNode;
   gain: GainNode;
-  oscillator: OscillatorNode;
   filter?: BiquadFilterNode;
 };
 
@@ -37,8 +38,12 @@ export function useAudioSession(sceneElements: SceneElement[]) {
 
   const stopAllNodes = () => {
     for (const [, node] of nodesRef.current) {
-      node.oscillator.stop();
-      node.oscillator.disconnect();
+      try {
+        node.source.stop();
+      } catch {
+        // already stopped
+      }
+      node.source.disconnect();
       node.filter?.disconnect();
       node.gain.disconnect();
     }
@@ -60,8 +65,12 @@ export function useAudioSession(sceneElements: SceneElement[]) {
 
     for (const [elementId, nodes] of nodesRef.current) {
       if (!nextIds.has(elementId)) {
-        nodes.oscillator.stop();
-        nodes.oscillator.disconnect();
+        try {
+          nodes.source.stop();
+        } catch {
+          // already stopped
+        }
+        nodes.source.disconnect();
         nodes.filter?.disconnect();
         nodes.gain.disconnect();
         nodesRef.current.delete(elementId);
@@ -73,13 +82,15 @@ export function useAudioSession(sceneElements: SceneElement[]) {
         continue;
       }
 
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
       const preset = resolveAudioPreset(element.motif);
+      const noiseBuffer = generateNoiseBuffer(context, preset.noiseType);
 
-      oscillator.type = preset.oscillatorType;
-      oscillator.frequency.value = preset.frequency;
-      gain.gain.value = 0.018 + element.confidence * 0.012;
+      const source = context.createBufferSource();
+      source.buffer = noiseBuffer;
+      source.loop = true;
+
+      const gain = context.createGain();
+      gain.gain.value = 0.12 * preset.gainMultiplier * (0.8 + element.confidence * 0.2);
 
       let filter: BiquadFilterNode | undefined = undefined;
 
@@ -87,17 +98,20 @@ export function useAudioSession(sceneElements: SceneElement[]) {
         filter = context.createBiquadFilter();
         filter.type = preset.filter.type;
         filter.frequency.value = preset.filter.frequency;
+        if (preset.filter.Q !== undefined) {
+          filter.Q.value = preset.filter.Q;
+        }
 
-        oscillator.connect(filter);
+        source.connect(filter);
         filter.connect(gain);
       } else {
-        oscillator.connect(gain);
+        source.connect(gain);
       }
 
       gain.connect(context.destination);
-      oscillator.start();
+      source.start();
 
-      nodesRef.current.set(element.id, { oscillator, gain, filter });
+      nodesRef.current.set(element.id, { source, gain, filter });
     }
   };
 

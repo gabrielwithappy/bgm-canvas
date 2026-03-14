@@ -18,9 +18,9 @@ Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
   }),
 });
 
-class MockOscillatorNode {
-  frequency = { value: 0 };
-  type: OscillatorType = "sine";
+class MockAudioBufferSourceNode {
+  buffer: AudioBuffer | null = null;
+  loop = false;
 
   connect() { }
   disconnect() { }
@@ -37,6 +37,7 @@ class MockGainNode {
 
 class MockBiquadFilterNode {
   frequency = { value: 0 };
+  Q = { value: 1 };
   type: BiquadFilterType = "lowpass";
 
   connect() { }
@@ -46,17 +47,31 @@ class MockBiquadFilterNode {
 class MockAudioContext {
   destination = {};
   state: AudioContextState = "running";
+  sampleRate = 44100;
 
   close = vi.fn(async () => {
     this.state = "closed";
   });
 
-  createGain() {
-    return new MockGainNode() as unknown as GainNode;
+  createBuffer(channels: number, frameCount: number, _sampleRate: number): AudioBuffer {
+    const data = new Float32Array(frameCount);
+    return {
+      numberOfChannels: channels,
+      length: frameCount,
+      sampleRate: _sampleRate,
+      duration: frameCount / _sampleRate,
+      getChannelData: () => data,
+      copyFromChannel: () => { },
+      copyToChannel: () => { },
+    } as unknown as AudioBuffer;
   }
 
-  createOscillator() {
-    return new MockOscillatorNode() as unknown as OscillatorNode;
+  createBufferSource() {
+    return new MockAudioBufferSourceNode() as unknown as AudioBufferSourceNode;
+  }
+
+  createGain() {
+    return new MockGainNode() as unknown as GainNode;
   }
 
   createBiquadFilter() {

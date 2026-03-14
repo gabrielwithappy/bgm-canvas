@@ -1,73 +1,78 @@
 import type { Motif } from "../../../shared/types/domain";
 
+export type NoiseType = "white" | "pink" | "brown";
+
 export type AudioPreset = {
-    oscillatorType: OscillatorType;
+  noiseType: NoiseType;
+  filter?: {
+    type: BiquadFilterType;
     frequency: number;
-    filter?: {
-        type: BiquadFilterType;
-        frequency: number;
-    };
+    Q?: number;
+  };
+  gainMultiplier: number;
 };
 
 export function resolveAudioPreset(motif: Motif): AudioPreset {
-    switch (motif) {
-        case "sea":
-            return {
-                oscillatorType: "sine",
-                frequency: 150,
-                filter: { type: "lowpass", frequency: 400 },
-            };
-        case "campfire":
-            return {
-                oscillatorType: "triangle",
-                frequency: 100,
-                filter: { type: "lowpass", frequency: 800 },
-            };
-        case "rain":
-            return {
-                oscillatorType: "sine",
-                frequency: 400,
-                filter: { type: "highpass", frequency: 300 },
-            };
-        case "wind":
-            return {
-                oscillatorType: "sine",
-                frequency: 200,
-                filter: { type: "lowpass", frequency: 600 },
-            };
-        case "tree":
-            return {
-                oscillatorType: "triangle",
-                frequency: 196,
-            };
-        case "star":
-            return {
-                oscillatorType: "sine",
-                frequency: 523,
-            };
-        case "window":
-            return {
-                oscillatorType: "sine",
-                frequency: 240,
-                filter: { type: "lowpass", frequency: 500 },
-            };
-        case "lamp":
-            return {
-                oscillatorType: "triangle",
-                frequency: 330,
-                filter: { type: "lowpass", frequency: 600 },
-            };
-        case "desk":
-            return {
-                oscillatorType: "triangle",
-                frequency: 120,
-                filter: { type: "lowpass", frequency: 300 },
-            };
-        case "unknown":
-        default:
-            return {
-                oscillatorType: "triangle",
-                frequency: 246,
-            };
-    }
+  switch (motif) {
+    case "rain":
+      return {
+        noiseType: "white",
+        filter: { type: "bandpass", frequency: 1200, Q: 0.8 },
+        gainMultiplier: 1.0,
+      };
+    case "wind":
+      return {
+        noiseType: "pink",
+        filter: { type: "lowpass", frequency: 800 },
+        gainMultiplier: 0.8,
+      };
+    case "sea":
+      return {
+        noiseType: "brown",
+        filter: { type: "lowpass", frequency: 600 },
+        gainMultiplier: 1.1,
+      };
+    case "campfire":
+      return {
+        noiseType: "brown",
+        filter: { type: "bandpass", frequency: 300, Q: 0.5 },
+        gainMultiplier: 0.9,
+      };
+    case "tree":
+      return {
+        noiseType: "pink",
+        filter: { type: "bandpass", frequency: 500, Q: 1.2 },
+        gainMultiplier: 0.6,
+      };
+    case "star":
+      return {
+        noiseType: "white",
+        filter: { type: "highpass", frequency: 4000 },
+        gainMultiplier: 0.3,
+      };
+    case "window":
+      return {
+        noiseType: "pink",
+        filter: { type: "lowpass", frequency: 400 },
+        gainMultiplier: 0.5,
+      };
+    case "lamp":
+      return {
+        noiseType: "brown",
+        filter: { type: "lowpass", frequency: 200 },
+        gainMultiplier: 0.35,
+      };
+    case "desk":
+      return {
+        noiseType: "brown",
+        filter: { type: "lowpass", frequency: 300 },
+        gainMultiplier: 0.4,
+      };
+    case "unknown":
+    default:
+      return {
+        noiseType: "pink",
+        gainMultiplier: 0.3,
+      };
+  }
 }
