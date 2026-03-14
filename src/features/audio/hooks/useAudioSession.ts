@@ -1,20 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { SceneElement } from "../../../shared/types/domain";
 import type { AudioSessionState } from "../model/audioLayers";
+import { resolveAudioPreset } from "../model/audioPresets";
+import { generateNoiseBuffer } from "../model/noiseBuffer";
 
 type AudioNodes = {
+  source: AudioBufferSourceNode;
   gain: GainNode;
-  oscillator: OscillatorNode;
-};
-
-const motifFrequencies: Record<SceneElement["motif"], number> = {
-  campfire: 220,
-  rain: 320,
-  wind: 270,
-  tree: 196,
-  star: 523,
-  sea: 174,
-  unknown: 246,
+  filter?: BiquadFilterNode;
 };
 
 export function useAudioSession(sceneElements: SceneElement[]) {
@@ -45,8 +38,13 @@ export function useAudioSession(sceneElements: SceneElement[]) {
 
   const stopAllNodes = () => {
     for (const [, node] of nodesRef.current) {
-      node.oscillator.stop();
-      node.oscillator.disconnect();
+      try {
+        node.source.stop();
+      } catch {
+        // already stopped
+      }
+      node.source.disconnect();
+      node.filter?.disconnect();
       node.gain.disconnect();
     }
 
@@ -67,8 +65,13 @@ export function useAudioSession(sceneElements: SceneElement[]) {
 
     for (const [elementId, nodes] of nodesRef.current) {
       if (!nextIds.has(elementId)) {
-        nodes.oscillator.stop();
-        nodes.oscillator.disconnect();
+        try {
+          nodes.source.stop();
+        } catch {
+          // already stopped
+        }
+        nodes.source.disconnect();
+        nodes.filter?.disconnect();
         nodes.gain.disconnect();
         nodesRef.current.delete(elementId);
       }
@@ -79,17 +82,36 @@ export function useAudioSession(sceneElements: SceneElement[]) {
         continue;
       }
 
-      const oscillator = context.createOscillator();
+      const preset = resolveAudioPreset(element.motif);
+      const noiseBuffer = generateNoiseBuffer(context, preset.noiseType);
+
+      const source = context.createBufferSource();
+      source.buffer = noiseBuffer;
+      source.loop = true;
+
       const gain = context.createGain();
+      gain.gain.value = 0.12 * preset.gainMultiplier * (0.8 + element.confidence * 0.2);
 
-      oscillator.type = element.motif === "sea" ? "sine" : "triangle";
-      oscillator.frequency.value = motifFrequencies[element.motif];
-      gain.gain.value = 0.018 + element.confidence * 0.012;
-      oscillator.connect(gain);
+      let filter: BiquadFilterNode | undefined = undefined;
+
+      if (preset.filter) {
+        filter = context.createBiquadFilter();
+        filter.type = preset.filter.type;
+        filter.frequency.value = preset.filter.frequency;
+        if (preset.filter.Q !== undefined) {
+          filter.Q.value = preset.filter.Q;
+        }
+
+        source.connect(filter);
+        filter.connect(gain);
+      } else {
+        source.connect(gain);
+      }
+
       gain.connect(context.destination);
-      oscillator.start();
+      source.start();
 
-      nodesRef.current.set(element.id, { oscillator, gain });
+      nodesRef.current.set(element.id, { source, gain, filter });
     }
   };
 
