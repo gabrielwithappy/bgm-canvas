@@ -4,10 +4,27 @@
 세부 계약과 장기 기준선은 `docs/` 문서를 source of truth로 유지하되, 시작 절차와 필수 게이트는 이 파일에서 먼저 강제한다.
 
 ## Startup Order
-1. `README.md`로 프로젝트 개요를 확인한다.
-2. `docs/README.md`로 문서 읽기 순서를 확인한다.
-3. `docs/00-governance/codex-collaboration-protocol.md`를 읽고 협업 규약을 따른다.
-4. `docs/20-planning/2026-03-07-bgm-canvas-implementation-plan.md`를 읽고 현재 구현 단계와 owner mapping을 확인한다.
+1. 프로젝트 루트의 `MEMORY.md`를 읽고 현재 상태를 파악한다. 없으면 아래 템플릿으로 생성한다.
+2. `README.md`로 프로젝트 개요를 확인한다.
+3. `docs/README.md`로 문서 읽기 순서를 확인한다.
+4. `docs/00-governance/codex-collaboration-protocol.md`를 읽고 협업 규약을 따른다.
+5. `docs/20-planning/2026-03-07-bgm-canvas-implementation-plan.md`를 읽고 현재 구현 단계와 owner mapping을 확인한다.
+
+## Memory
+
+세션 종료 시 `MEMORY.md` 상단에 새 항목을 추가한다.
+
+```md
+## YYYY-MM-DD | Agent-Name
+- 완료:
+- 현재 상태:
+- 다음:
+- 사람 결정 필요:
+```
+
+- 항목은 짧게 유지한다. 상세 내용은 이슈나 커밋에 있다.
+- 사람 결정이 필요한 항목은 GitHub Issue도 함께 생성하고 링크를 남긴다.
+- 파일이 길어지면 오래된 항목을 `MEMORY-archive.md`로 옮긴다.
 
 ## Hard Gates Before Coding
 - 코드 수정 전에 GitHub remote 상태를 먼저 확인한다.
